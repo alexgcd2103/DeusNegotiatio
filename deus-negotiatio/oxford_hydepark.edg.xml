@@ -1,0 +1,42 @@
+<edges>
+    <!-- Lane Widths: Turned (3.0m), Through (3.3m) -->
+    <!-- Speed Limit: 60 km/h = 16.67 m/s -->
+    
+    <!-- Northbound Approach (South to Center) -->
+    <edge id="hydepark_nb_approach" from="south_start" to="center" priority="2" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0"/> <!-- Right -->
+        <lane index="1" width="3.3"/> <!-- Through -->
+        <lane index="2" width="3.3"/> <!-- Through -->
+        <lane index="3" width="3.0"/> <!-- Left -->
+    </edge>
+    
+    <!-- Southbound Approach (North to Center) -->
+    <edge id="hydepark_sb_approach" from="north_start" to="center" priority="2" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0"/> <!-- Right -->
+        <lane index="1" width="3.3"/> <!-- Through -->
+        <lane index="2" width="3.3"/> <!-- Through -->
+        <lane index="3" width="3.0"/> <!-- Left -->
+    </edge>
+    
+    <!-- Eastbound Approach (West to Center) -->
+    <edge id="oxford_eb_approach" from="west_start" to="center" priority="2" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0"/> <!-- Right -->
+        <lane index="1" width="3.3"/> <!-- Through -->
+        <lane index="2" width="3.3"/> <!-- Through -->
+        <lane index="3" width="3.0"/> <!-- Left -->
+    </edge>
+    
+    <!-- Westbound Approach (East to Center) -->
+    <edge id="oxford_wb_approach" from="east_start" to="center" priority="2" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0"/> <!-- Right -->
+        <lane index="1" width="3.3"/> <!-- Through -->
+        <lane index="2" width="3.3"/> <!-- Through -->
+        <lane index="3" width="3.0"/> <!-- Left -->
+    </edge>
+
+    <!-- Departures (Center to Endpoint) -->
+    <edge id="hydepark_nb_depart" from="center" to="north_start" priority="1" numLanes="2" speed="16.67"/>
+    <edge id="hydepark_sb_depart" from="center" to="south_start" priority="1" numLanes="2" speed="16.67"/>
+    <edge id="oxford_eb_depart" from="center" to="east_start" priority="1" numLanes="2" speed="16.67"/>
+    <edge id="oxford_wb_depart" from="center" to="west_start" priority="1" numLanes="2" speed="16.67"/>
+</edges>

@@ -1,0 +1,35 @@
+<routes>
+    <!-- Car and Bike definitions -->
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5.0" maxSpeed="16.67"/>
+    <vType id="truck" accel="1.3" decel="4.0" sigma="0.5" length="12.0" maxSpeed="13.89"/>
+
+    <!-- 2046 PM Peak Volumes (Vehicles/Hour) -->
+    
+    <!-- NORTHBOUND (From South) -->
+    <!-- Left: 74, Through: 642, Right: 68 -->
+    <flow id="NB_L" type="car" begin="0" end="3600" number="74" from="hydepark_nb_approach" to="oxford_wb_depart" departLane="3"/>
+    <flow id="NB_T" type="car" begin="0" end="3600" number="642" from="hydepark_nb_approach" to="hydepark_nb_depart" departLane="best"/>
+    <flow id="NB_R" type="car" begin="0" end="3600" number="68" from="hydepark_nb_approach" to="oxford_eb_depart" departLane="0"/>
+
+    <!-- EASTBOUND (From West) -->
+    <!-- Left: 529, Through: 897, Right: 53 -->
+    <flow id="EB_L" type="car" begin="0" end="3600" number="529" from="oxford_eb_approach" to="hydepark_nb_depart" departLane="3"/>
+    <flow id="EB_T" type="car" begin="0" end="3600" number="897" from="oxford_eb_approach" to="oxford_eb_depart" departLane="best"/>
+    <flow id="EB_R" type="car" begin="0" end="3600" number="53" from="oxford_eb_approach" to="hydepark_sb_depart" departLane="0"/>
+
+    <!-- SOUTHBOUND (From North) -->
+    <!-- Left: 468, Through: 767, Right: 731 -->
+    <flow id="SB_L" type="car" begin="0" end="3600" number="468" from="hydepark_sb_approach" to="oxford_eb_depart" departLane="3"/>
+    <flow id="SB_T" type="car" begin="0" end="3600" number="767" from="hydepark_sb_approach" to="hydepark_sb_depart" departLane="best"/>
+    <flow id="SB_R" type="car" begin="0" end="3600" number="731" from="hydepark_sb_approach" to="oxford_wb_depart" departLane="0"/>
+
+    <!-- WESTBOUND (From East) -->
+    <!-- Left: 199, Through: 829, Right: 441 -->
+    <flow id="WB_L" type="car" begin="0" end="3600" number="199" from="oxford_wb_approach" to="hydepark_sb_depart" departLane="3"/>
+    <flow id="WB_T" type="car" begin="0" end="3600" number="829" from="oxford_wb_approach" to="oxford_wb_depart" departLane="best"/>
+    <flow id="WB_R" type="car" begin="0" end="3600" number="441" from="oxford_wb_approach" to="hydepark_nb_depart" departLane="0"/>
+
+    <!-- Pedestrians -->
+    <!-- NB Crosswalk: 186/hr, EB Crosswalk: 94/hr -->
+    <!-- Note: Abstracted as walks between edges since specific walking areas need full net -->
+</routes>

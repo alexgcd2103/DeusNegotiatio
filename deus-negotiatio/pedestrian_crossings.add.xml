@@ -1,0 +1,19 @@
+<additional>
+    <!-- Detailed crossing geometry would normally require internal lane edges -->
+    <!-- This file acts as a placeholder or to define crossings if we used 'walkingareas' -->
+    
+    <!-- For basic 'netconvert' generation, crossings are often inferred from connections -->
+    <!-- or defined explicitly if logic requires -->
+    
+    <!-- NB Crossing (South leg) -->
+    <crossing node="center" edges="hydepark_nb_approach" priority="0" width="3.0"/>
+    
+    <!-- EB Crossing (West leg) -->
+    <crossing node="center" edges="oxford_eb_approach" priority="0" width="3.0"/>
+    
+    <!-- SB Crossing (North leg) -->
+    <crossing node="center" edges="hydepark_sb_approach" priority="0" width="3.0"/>
+    
+    <!-- WB Crossing (East leg) -->
+    <crossing node="center" edges="oxford_wb_approach" priority="0" width="3.0"/>
+</additional>

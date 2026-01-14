@@ -1,0 +1,27 @@
+<additional>
+    <!-- Induction Loop Detectors (E1) placed at stop lines -->
+    
+    <!-- Northbound -->
+    <inductionLoop id="e1_NB_0" lane="hydepark_nb_approach_0" pos="-1" freq="60" file="so_nb.out.xml"/>
+    <inductionLoop id="e1_NB_1" lane="hydepark_nb_approach_1" pos="-1" freq="60" file="so_nb.out.xml"/>
+    <inductionLoop id="e1_NB_2" lane="hydepark_nb_approach_2" pos="-1" freq="60" file="so_nb.out.xml"/>
+    <inductionLoop id="e1_NB_3" lane="hydepark_nb_approach_3" pos="-1" freq="60" file="so_nb.out.xml"/>
+
+    <!-- Southbound -->
+    <inductionLoop id="e1_SB_0" lane="hydepark_sb_approach_0" pos="-1" freq="60" file="so_sb.out.xml"/>
+    <inductionLoop id="e1_SB_1" lane="hydepark_sb_approach_1" pos="-1" freq="60" file="so_sb.out.xml"/>
+    <inductionLoop id="e1_SB_2" lane="hydepark_sb_approach_2" pos="-1" freq="60" file="so_sb.out.xml"/>
+    <inductionLoop id="e1_SB_3" lane="hydepark_sb_approach_3" pos="-1" freq="60" file="so_sb.out.xml"/>
+
+    <!-- Eastbound -->
+    <inductionLoop id="e1_EB_0" lane="oxford_eb_approach_0" pos="-1" freq="60" file="so_eb.out.xml"/>
+    <inductionLoop id="e1_EB_1" lane="oxford_eb_approach_1" pos="-1" freq="60" file="so_eb.out.xml"/>
+    <inductionLoop id="e1_EB_2" lane="oxford_eb_approach_2" pos="-1" freq="60" file="so_eb.out.xml"/>
+    <inductionLoop id="e1_EB_3" lane="oxford_eb_approach_3" pos="-1" freq="60" file="so_eb.out.xml"/>
+
+    <!-- Westbound -->
+    <inductionLoop id="e1_WB_0" lane="oxford_wb_approach_0" pos="-1" freq="60" file="so_wb.out.xml"/>
+    <inductionLoop id="e1_WB_1" lane="oxford_wb_approach_1" pos="-1" freq="60" file="so_wb.out.xml"/>
+    <inductionLoop id="e1_WB_2" lane="oxford_wb_approach_2" pos="-1" freq="60" file="so_wb.out.xml"/>
+    <inductionLoop id="e1_WB_3" lane="oxford_wb_approach_3" pos="-1" freq="60" file="so_wb.out.xml"/>
+</additional>

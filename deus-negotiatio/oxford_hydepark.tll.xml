@@ -1,0 +1,24 @@
+<tllogic>
+    <tlLogic id="oxford_hydepark_tl" type="static" programID="0" offset="0">
+        <!-- Phase 1: NB/SB Through + Right (40s) -->
+        <!-- Indices: 0-3(SB), 4-7(WB), 8-11(NB), 12-15(EB) -->
+        <!-- SB(0,1,2=G), NB(8,9,10=G) -->
+        <phase duration="40" state="GGGrrrrrGGGrrrrr"/>
+        <phase duration="4"  state="yyyrrrrryyyrrrrr"/>
+        
+        <!-- Phase 2: EB/WB Through + Right (40s) -->
+        <!-- WB(4,5,6=G), EB(12,13,14=G) -->
+        <phase duration="40" state="rrrrGGGrrrrrGGGr"/>
+        <phase duration="4"  state="rrrryyyrrrrryyyr"/>
+        
+        <!-- Phase 3: NB/SB Left (20s) -->
+        <!-- SB(3=G), NB(11=G) -->
+        <phase duration="20" state="rrrGrrrrrrrGrrrr"/>
+        <phase duration="4"  state="rrryrrrrrrryrrrr"/>
+        
+        <!-- Phase 4: EB/WB Left (20s) -->
+        <!-- WB(7=G), EB(15=G) -->
+        <phase duration="20" state="rrrrrrrGrrrrrrrG"/>
+        <phase duration="4"  state="rrrrrrryrrrrrrry"/>
+    </tlLogic>
+</tllogic>

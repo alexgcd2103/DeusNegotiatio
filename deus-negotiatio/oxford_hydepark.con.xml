@@ -1,0 +1,25 @@
+<connections>
+    <!-- Northbound (Edge: hydepark_nb_approach) -->
+    <connection from="hydepark_nb_approach" to="oxford_eb_depart" fromLane="0" toLane="0"/> <!-- Right -->
+    <connection from="hydepark_nb_approach" to="hydepark_nb_depart" fromLane="1" toLane="0"/> <!-- Through -->
+    <connection from="hydepark_nb_approach" to="hydepark_nb_depart" fromLane="2" toLane="1"/> <!-- Through -->
+    <connection from="hydepark_nb_approach" to="oxford_wb_depart" fromLane="3" toLane="1"/> <!-- Left -->
+
+    <!-- Southbound (Edge: hydepark_sb_approach) -->
+    <connection from="hydepark_sb_approach" to="oxford_wb_depart" fromLane="0" toLane="0"/> <!-- Right -->
+    <connection from="hydepark_sb_approach" to="hydepark_sb_depart" fromLane="1" toLane="0"/> <!-- Through -->
+    <connection from="hydepark_sb_approach" to="hydepark_sb_depart" fromLane="2" toLane="1"/> <!-- Through -->
+    <connection from="hydepark_sb_approach" to="oxford_eb_depart" fromLane="3" toLane="1"/> <!-- Left -->
+
+    <!-- Eastbound (Edge: oxford_eb_approach) -->
+    <connection from="oxford_eb_approach" to="hydepark_sb_depart" fromLane="0" toLane="0"/> <!-- Right -->
+    <connection from="oxford_eb_approach" to="oxford_eb_depart" fromLane="1" toLane="0"/> <!-- Through -->
+    <connection from="oxford_eb_approach" to="oxford_eb_depart" fromLane="2" toLane="1"/> <!-- Through -->
+    <connection from="oxford_eb_approach" to="hydepark_nb_depart" fromLane="3" toLane="1"/> <!-- Left -->
+
+    <!-- Westbound (Edge: oxford_wb_approach) -->
+    <connection from="oxford_wb_approach" to="hydepark_nb_depart" fromLane="0" toLane="0"/> <!-- Right -->
+    <connection from="oxford_wb_approach" to="oxford_wb_depart" fromLane="1" toLane="0"/> <!-- Through -->
+    <connection from="oxford_wb_approach" to="oxford_wb_depart" fromLane="2" toLane="1"/> <!-- Through -->
+    <connection from="oxford_wb_approach" to="hydepark_sb_depart" fromLane="3" toLane="1"/> <!-- Left -->
+</connections>

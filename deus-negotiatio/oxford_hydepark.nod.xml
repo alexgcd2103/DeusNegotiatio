@@ -1,0 +1,17 @@
+<nodes>
+    <!-- Center Intersection Node -->
+    <node id="center" x="0.0" y="0.0" type="traffic_light" tl="oxford_hydepark_tl"/>
+
+    <!-- Approach Start Nodes (115m from center) -->
+    <node id="north_start" x="0.0" y="115.0" type="priority"/>
+    <node id="south_start" x="0.0" y="-115.0" type="priority"/>
+    <node id="east_start" x="115.0" y="0.0" type="priority"/>
+    <node id="west_start" x="-115.0" y="0.0" type="priority"/>
+    
+    <!-- Coordinate/Geometry Notes:
+         NB Approach: From South to Center
+         SB Approach: From North to Center
+         EB Approach: From West to Center
+         WB Approach: From East to Center
+    -->
+</nodes>

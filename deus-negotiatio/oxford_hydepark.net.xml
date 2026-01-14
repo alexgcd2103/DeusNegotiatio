@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-01-13T20:27:07.224365-05:00 by Eclipse SUMO netconvert 1.25.0
+<netconvertConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="oxford_hydepark.nod.xml"/>
+        <edge-files value="oxford_hydepark.edg.xml"/>
+        <connection-files value="oxford_hydepark.con.xml"/>
+        <tllogic-files value="oxford_hydepark.tll.xml"/>
+    </input>
+
+    <output>
+        <output-file value="oxford_hydepark.net.xml"/>
+    </output>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+</netconvertConfiguration>
+-->
+
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="115.00,115.00" convBoundary="0.00,0.00,230.00,230.00" origBoundary="-115.00,-115.00,115.00,115.00" projParameter="!"/>
+
+    <edge id=":center_0" function="internal">
+        <lane id=":center_0_0" index="0" speed="8.02" length="14.32" shape="103.90,131.60 103.56,126.44 102.53,122.75 100.81,120.54 98.40,119.80"/>
+    </edge>
+    <edge id=":center_1" function="internal">
+        <lane id=":center_1_0" index="0" speed="16.67" length="33.38" shape="107.05,131.60 107.54,120.78 108.62,112.50 109.71,105.46 110.20,98.40"/>
+        <lane id=":center_1_1" index="1" speed="16.67" length="33.38" shape="110.35,131.60 110.83,120.79 111.88,112.50 112.92,105.46 113.40,98.40"/>
+    </edge>
+    <edge id=":center_3" function="internal">
+        <lane id=":center_3_0" index="0" speed="11.27" length="29.27" shape="113.50,131.60 114.63,123.64 118.03,117.95 123.68,114.54 131.60,113.40"/>
+    </edge>
+    <edge id=":center_4" function="internal">
+        <lane id=":center_4_0" index="0" speed="8.02" length="14.32" shape="131.60,126.10 126.44,126.44 122.75,127.47 120.54,129.19 119.80,131.60"/>
+    </edge>
+    <edge id=":center_5" function="internal">
+        <lane id=":center_5_0" index="0" speed="16.67" length="33.38" shape="131.60,122.95 120.78,122.46 112.50,121.38 105.46,120.29 98.40,119.80"/>
+        <lane id=":center_5_1" index="1" speed="16.67" length="33.38" shape="131.60,119.65 120.79,119.17 112.50,118.12 105.46,117.08 98.40,116.60"/>
+    </edge>
+    <edge id=":center_7" function="internal">
+        <lane id=":center_7_0" index="0" speed="11.27" length="29.27" shape="131.60,116.50 123.64,115.37 117.95,111.97 114.54,106.32 113.40,98.40"/>
+    </edge>
+    <edge id=":center_8" function="internal">
+        <lane id=":center_8_0" index="0" speed="8.02" length="14.32" shape="126.10,98.40 126.44,103.56 127.47,107.25 129.19,109.46 131.60,110.20"/>
+    </edge>
+    <edge id=":center_9" function="internal">
+        <lane id=":center_9_0" index="0" speed="16.67" length="33.38" shape="122.95,98.40 122.46,109.22 121.38,117.50 120.29,124.54 119.80,131.60"/>
+        <lane id=":center_9_1" index="1" speed="16.67" length="33.38" shape="119.65,98.40 119.17,109.21 118.12,117.50 117.08,124.54 116.60,131.60"/>
+    </edge>
+    <edge id=":center_11" function="internal">
+        <lane id=":center_11_0" index="0" speed="11.27" length="29.27" shape="116.50,98.40 115.37,106.36 111.97,112.05 106.32,115.46 98.40,116.60"/>
+    </edge>
+    <edge id=":center_12" function="internal">
+        <lane id=":center_12_0" index="0" speed="8.02" length="14.32" shape="98.40,103.90 103.56,103.56 107.25,102.53 109.46,100.81 110.20,98.40"/>
+    </edge>
+    <edge id=":center_13" function="internal">
+        <lane id=":center_13_0" index="0" speed="16.67" length="33.38" shape="98.40,107.05 109.22,107.54 117.50,108.62 124.54,109.71 131.60,110.20"/>
+        <lane id=":center_13_1" index="1" speed="16.67" length="33.38" shape="98.40,110.35 109.21,110.83 117.50,111.88 124.54,112.92 131.60,113.40"/>
+    </edge>
+    <edge id=":center_15" function="internal">
+        <lane id=":center_15_0" index="0" speed="11.27" length="29.27" shape="98.40,113.50 106.36,114.63 112.05,118.03 115.46,123.68 116.60,131.60"/>
+    </edge>
+    <edge id=":east_start_0" function="internal">
+        <lane id=":east_start_0_0" index="0" speed="3.61" length="4.53" width="3.00" shape="230.00,113.40 231.16,114.17 231.55,114.95 231.16,115.72 230.00,116.50"/>
+    </edge>
+    <edge id=":north_start_0" function="internal">
+        <lane id=":north_start_0_0" index="0" speed="3.61" length="4.53" width="3.00" shape="116.60,230.00 115.82,231.16 115.05,231.55 114.28,231.16 113.50,230.00"/>
+    </edge>
+    <edge id=":south_start_0" function="internal">
+        <lane id=":south_start_0_0" index="0" speed="3.61" length="4.53" width="3.00" shape="113.40,0.00 114.17,-1.16 114.95,-1.55 115.72,-1.16 116.50,0.00"/>
+    </edge>
+    <edge id=":west_start_0" function="internal">
+        <lane id=":west_start_0_0" index="0" speed="3.61" length="4.53" width="3.00" shape="0.00,116.60 -1.16,115.82 -1.55,115.05 -1.16,114.28 0.00,113.50"/>
+    </edge>
+
+    <edge id="hydepark_nb_approach" from="south_start" to="center" priority="2">
+        <lane id="hydepark_nb_approach_0" index="0" speed="16.67" length="98.40" width="3.00" shape="126.10,0.00 126.10,98.40"/>
+        <lane id="hydepark_nb_approach_1" index="1" speed="16.67" length="98.40" width="3.30" shape="122.95,0.00 122.95,98.40"/>
+        <lane id="hydepark_nb_approach_2" index="2" speed="16.67" length="98.40" width="3.30" shape="119.65,0.00 119.65,98.40"/>
+        <lane id="hydepark_nb_approach_3" index="3" speed="16.67" length="98.40" width="3.00" shape="116.50,0.00 116.50,98.40"/>
+    </edge>
+    <edge id="hydepark_nb_depart" from="center" to="north_start" priority="1">
+        <lane id="hydepark_nb_depart_0" index="0" speed="16.67" length="98.40" shape="119.80,131.60 119.80,230.00"/>
+        <lane id="hydepark_nb_depart_1" index="1" speed="16.67" length="98.40" shape="116.60,131.60 116.60,230.00"/>
+    </edge>
+    <edge id="hydepark_sb_approach" from="north_start" to="center" priority="2">
+        <lane id="hydepark_sb_approach_0" index="0" speed="16.67" length="98.40" width="3.00" shape="103.90,230.00 103.90,131.60"/>
+        <lane id="hydepark_sb_approach_1" index="1" speed="16.67" length="98.40" width="3.30" shape="107.05,230.00 107.05,131.60"/>
+        <lane id="hydepark_sb_approach_2" index="2" speed="16.67" length="98.40" width="3.30" shape="110.35,230.00 110.35,131.60"/>
+        <lane id="hydepark_sb_approach_3" index="3" speed="16.67" length="98.40" width="3.00" shape="113.50,230.00 113.50,131.60"/>
+    </edge>
+    <edge id="hydepark_sb_depart" from="center" to="south_start" priority="1">
+        <lane id="hydepark_sb_depart_0" index="0" speed="16.67" length="98.40" shape="110.20,98.40 110.20,0.00"/>
+        <lane id="hydepark_sb_depart_1" index="1" speed="16.67" length="98.40" shape="113.40,98.40 113.40,0.00"/>
+    </edge>
+    <edge id="oxford_eb_approach" from="west_start" to="center" priority="2">
+        <lane id="oxford_eb_approach_0" index="0" speed="16.67" length="98.40" width="3.00" shape="0.00,103.90 98.40,103.90"/>
+        <lane id="oxford_eb_approach_1" index="1" speed="16.67" length="98.40" width="3.30" shape="0.00,107.05 98.40,107.05"/>
+        <lane id="oxford_eb_approach_2" index="2" speed="16.67" length="98.40" width="3.30" shape="0.00,110.35 98.40,110.35"/>
+        <lane id="oxford_eb_approach_3" index="3" speed="16.67" length="98.40" width="3.00" shape="0.00,113.50 98.40,113.50"/>
+    </edge>
+    <edge id="oxford_eb_depart" from="center" to="east_start" priority="1">
+        <lane id="oxford_eb_depart_0" index="0" speed="16.67" length="98.40" shape="131.60,110.20 230.00,110.20"/>
+        <lane id="oxford_eb_depart_1" index="1" speed="16.67" length="98.40" shape="131.60,113.40 230.00,113.40"/>
+    </edge>
+    <edge id="oxford_wb_approach" from="east_start" to="center" priority="2">
+        <lane id="oxford_wb_approach_0" index="0" speed="16.67" length="98.40" width="3.00" shape="230.00,126.10 131.60,126.10"/>
+        <lane id="oxford_wb_approach_1" index="1" speed="16.67" length="98.40" width="3.30" shape="230.00,122.95 131.60,122.95"/>
+        <lane id="oxford_wb_approach_2" index="2" speed="16.67" length="98.40" width="3.30" shape="230.00,119.65 131.60,119.65"/>
+        <lane id="oxford_wb_approach_3" index="3" speed="16.67" length="98.40" width="3.00" shape="230.00,116.50 131.60,116.50"/>
+    </edge>
+    <edge id="oxford_wb_depart" from="center" to="west_start" priority="1">
+        <lane id="oxford_wb_depart_0" index="0" speed="16.67" length="98.40" shape="98.40,119.80 0.00,119.80"/>
+        <lane id="oxford_wb_depart_1" index="1" speed="16.67" length="98.40" shape="98.40,116.60 0.00,116.60"/>
+    </edge>
+
+    <tlLogic id="oxford_hydepark_tl" type="static" programID="0" offset="0">
+        <phase duration="40" state="GGGrrrrrGGGrrrrr"/>
+        <phase duration="4"  state="yyyrrrrryyyrrrrr"/>
+        <phase duration="40" state="rrrrGGGrrrrrGGGr"/>
+        <phase duration="4"  state="rrrryyyrrrrryyyr"/>
+        <phase duration="20" state="rrrGrrrrrrrGrrrr"/>
+        <phase duration="4"  state="rrryrrrrrrryrrrr"/>
+        <phase duration="20" state="rrrrrrrGrrrrrrrG"/>
+        <phase duration="4"  state="rrrrrrryrrrrrrry"/>
+    </tlLogic>
+
+    <junction id="center" type="traffic_light" x="115.00" y="115.00" incLanes="hydepark_sb_approach_0 hydepark_sb_approach_1 hydepark_sb_approach_2 hydepark_sb_approach_3 oxford_wb_approach_0 oxford_wb_approach_1 oxford_wb_approach_2 oxford_wb_approach_3 hydepark_nb_approach_0 hydepark_nb_approach_1 hydepark_nb_approach_2 hydepark_nb_approach_3 oxford_eb_approach_0 oxford_eb_approach_1 oxford_eb_approach_2 oxford_eb_approach_3" intLanes=":center_0_0 :center_1_0 :center_1_1 :center_3_0 :center_4_0 :center_5_0 :center_5_1 :center_7_0 :center_8_0 :center_9_0 :center_9_1 :center_11_0 :center_12_0 :center_13_0 :center_13_1 :center_15_0" shape="102.40,131.60 121.40,131.60 122.53,129.38 123.95,128.60 125.93,128.04 128.48,127.71 131.60,127.60 131.60,108.60 129.38,107.47 128.60,106.05 128.04,104.07 127.71,101.52 127.60,98.40 108.60,98.40 107.47,100.62 106.05,101.40 104.07,101.96 101.52,102.29 98.40,102.40 98.40,121.40 100.62,122.53 101.40,123.95 101.96,125.93 102.29,128.48">
+        <request index="0"  response="0000000000000000" foes="0000000001100000" cont="0"/>
+        <request index="1"  response="0000000000000000" foes="1111100011100000" cont="0"/>
+        <request index="2"  response="0000000000000000" foes="1111100011100000" cont="0"/>
+        <request index="3"  response="0000011000000000" foes="1110011011100000" cont="0"/>
+        <request index="4"  response="0000011000000000" foes="0000011000000000" cont="0"/>
+        <request index="5"  response="0000111000001111" foes="1000111000001111" cont="0"/>
+        <request index="6"  response="0000111000001111" foes="1000111000001111" cont="0"/>
+        <request index="7"  response="0110111000001110" foes="0110111000001110" cont="0"/>
+        <request index="8"  response="0000000000000000" foes="0110000000000000" cont="0"/>
+        <request index="9"  response="0000000000000000" foes="1110000011111000" cont="0"/>
+        <request index="10" response="0000000000000000" foes="1110000011111000" cont="0"/>
+        <request index="11" response="0000000000000110" foes="1110000011100110" cont="0"/>
+        <request index="12" response="0000000000000110" foes="0000000000000110" cont="0"/>
+        <request index="13" response="0000111100001110" foes="0000111110001110" cont="0"/>
+        <request index="14" response="0000111100001110" foes="0000111110001110" cont="0"/>
+        <request index="15" response="0000111001101110" foes="0000111001101110" cont="0"/>
+    </junction>
+    <junction id="east_start" type="priority" x="230.00" y="115.00" incLanes="oxford_eb_depart_0 oxford_eb_depart_1" intLanes=":east_start_0_0" shape="230.00,115.00 230.00,108.60 230.00,115.00">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+    <junction id="north_start" type="priority" x="115.00" y="230.00" incLanes="hydepark_nb_depart_0 hydepark_nb_depart_1" intLanes=":north_start_0_0" shape="115.00,230.00 121.40,230.00 115.00,230.00">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+    <junction id="south_start" type="priority" x="115.00" y="0.00" incLanes="hydepark_sb_depart_0 hydepark_sb_depart_1" intLanes=":south_start_0_0" shape="115.00,0.00 108.60,0.00 115.00,0.00">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+    <junction id="west_start" type="priority" x="0.00" y="115.00" incLanes="oxford_wb_depart_0 oxford_wb_depart_1" intLanes=":west_start_0_0" shape="0.00,115.00 0.00,121.40 0.00,115.00">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+
+    <connection from="hydepark_nb_approach" to="oxford_eb_depart" fromLane="0" toLane="0" via=":center_8_0" tl="oxford_hydepark_tl" linkIndex="8" dir="r" state="O"/>
+    <connection from="hydepark_nb_approach" to="hydepark_nb_depart" fromLane="1" toLane="0" via=":center_9_0" tl="oxford_hydepark_tl" linkIndex="9" dir="s" state="O"/>
+    <connection from="hydepark_nb_approach" to="hydepark_nb_depart" fromLane="2" toLane="1" via=":center_9_1" tl="oxford_hydepark_tl" linkIndex="10" dir="s" state="O"/>
+    <connection from="hydepark_nb_approach" to="oxford_wb_depart" fromLane="3" toLane="1" via=":center_11_0" tl="oxford_hydepark_tl" linkIndex="11" dir="l" state="o"/>
+    <connection from="hydepark_nb_depart" to="hydepark_sb_approach" fromLane="1" toLane="3" via=":north_start_0_0" dir="t" state="M"/>
+    <connection from="hydepark_sb_approach" to="oxford_wb_depart" fromLane="0" toLane="0" via=":center_0_0" tl="oxford_hydepark_tl" linkIndex="0" dir="r" state="O"/>
+    <connection from="hydepark_sb_approach" to="hydepark_sb_depart" fromLane="1" toLane="0" via=":center_1_0" tl="oxford_hydepark_tl" linkIndex="1" dir="s" state="O"/>
+    <connection from="hydepark_sb_approach" to="hydepark_sb_depart" fromLane="2" toLane="1" via=":center_1_1" tl="oxford_hydepark_tl" linkIndex="2" dir="s" state="O"/>
+    <connection from="hydepark_sb_approach" to="oxford_eb_depart" fromLane="3" toLane="1" via=":center_3_0" tl="oxford_hydepark_tl" linkIndex="3" dir="l" state="o"/>
+    <connection from="hydepark_sb_depart" to="hydepark_nb_approach" fromLane="1" toLane="3" via=":south_start_0_0" dir="t" state="M"/>
+    <connection from="oxford_eb_approach" to="hydepark_sb_depart" fromLane="0" toLane="0" via=":center_12_0" tl="oxford_hydepark_tl" linkIndex="12" dir="r" state="o"/>
+    <connection from="oxford_eb_approach" to="oxford_eb_depart" fromLane="1" toLane="0" via=":center_13_0" tl="oxford_hydepark_tl" linkIndex="13" dir="s" state="o"/>
+    <connection from="oxford_eb_approach" to="oxford_eb_depart" fromLane="2" toLane="1" via=":center_13_1" tl="oxford_hydepark_tl" linkIndex="14" dir="s" state="o"/>
+    <connection from="oxford_eb_approach" to="hydepark_nb_depart" fromLane="3" toLane="1" via=":center_15_0" tl="oxford_hydepark_tl" linkIndex="15" dir="l" state="o"/>
+    <connection from="oxford_eb_depart" to="oxford_wb_approach" fromLane="1" toLane="3" via=":east_start_0_0" dir="t" state="M"/>
+    <connection from="oxford_wb_approach" to="hydepark_nb_depart" fromLane="0" toLane="0" via=":center_4_0" tl="oxford_hydepark_tl" linkIndex="4" dir="r" state="o"/>
+    <connection from="oxford_wb_approach" to="oxford_wb_depart" fromLane="1" toLane="0" via=":center_5_0" tl="oxford_hydepark_tl" linkIndex="5" dir="s" state="o"/>
+    <connection from="oxford_wb_approach" to="oxford_wb_depart" fromLane="2" toLane="1" via=":center_5_1" tl="oxford_hydepark_tl" linkIndex="6" dir="s" state="o"/>
+    <connection from="oxford_wb_approach" to="hydepark_sb_depart" fromLane="3" toLane="1" via=":center_7_0" tl="oxford_hydepark_tl" linkIndex="7" dir="l" state="o"/>
+    <connection from="oxford_wb_depart" to="oxford_eb_approach" fromLane="1" toLane="3" via=":west_start_0_0" dir="t" state="M"/>
+
+    <connection from=":center_0" to="oxford_wb_depart" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":center_1" to="hydepark_sb_depart" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":center_1" to="hydepark_sb_depart" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":center_3" to="oxford_eb_depart" fromLane="0" toLane="1" dir="l" state="M"/>
+    <connection from=":center_4" to="hydepark_nb_depart" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":center_5" to="oxford_wb_depart" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":center_5" to="oxford_wb_depart" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":center_7" to="hydepark_sb_depart" fromLane="0" toLane="1" dir="l" state="M"/>
+    <connection from=":center_8" to="oxford_eb_depart" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":center_9" to="hydepark_nb_depart" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":center_9" to="hydepark_nb_depart" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":center_11" to="oxford_wb_depart" fromLane="0" toLane="1" dir="l" state="M"/>
+    <connection from=":center_12" to="hydepark_sb_depart" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":center_13" to="oxford_eb_depart" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":center_13" to="oxford_eb_depart" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":center_15" to="hydepark_nb_depart" fromLane="0" toLane="1" dir="l" state="M"/>
+    <connection from=":east_start_0" to="oxford_wb_approach" fromLane="0" toLane="3" dir="t" state="M"/>
+    <connection from=":north_start_0" to="hydepark_sb_approach" fromLane="0" toLane="3" dir="t" state="M"/>
+    <connection from=":south_start_0" to="hydepark_nb_approach" fromLane="0" toLane="3" dir="t" state="M"/>
+    <connection from=":west_start_0" to="oxford_eb_approach" fromLane="0" toLane="3" dir="t" state="M"/>
+
+</net>
