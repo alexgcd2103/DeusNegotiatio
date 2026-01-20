@@ -9,6 +9,7 @@ import random
 import os
 
 from core.dqn_network import DuelingDQN
+from core.sensor_fusion_net import SensorFusionDQN # New Network
 from core.state_encoder import StateEncoder
 from core.reward_function import RewardFunction
 from learning.experience_buffer import PrioritizedReplayBuffer
@@ -18,7 +19,7 @@ class DeusNegotiatioAgent:
     The central agent for a single intersection.
     Integrates:
     - Sensing (StateEncoder)
-    - Decision Making (DQN)
+    - Decision Making (SensorFusionDQN)
     - Learning (Optimizer + ReplayBuffer)
     """
     def __init__(self, agent_id, config, state_dim, action_dim, device='cpu'):
@@ -31,8 +32,16 @@ class DeusNegotiatioAgent:
         self.reward_fn = RewardFunction()
         
         # Networks
-        self.policy_net = DuelingDQN(state_dim, action_dim).to(device)
-        self.target_net = DuelingDQN(state_dim, action_dim).to(device)
+        # Use SensorFusionDQN if state_dim implies multi-sensor ( > 60)
+        if state_dim > 60:
+            print(f"Using SensorFusionDQN for state_dim={state_dim}")
+            self.policy_net = SensorFusionDQN(state_dim, action_dim).to(device)
+            self.target_net = SensorFusionDQN(state_dim, action_dim).to(device)
+        else:
+            print(f"Using Standard DuelingDQN for state_dim={state_dim}")
+            self.policy_net = DuelingDQN(state_dim, action_dim).to(device)
+            self.target_net = DuelingDQN(state_dim, action_dim).to(device)
+            
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         
@@ -43,8 +52,8 @@ class DeusNegotiatioAgent:
         
         # Hyperparameters
         self.epsilon = config.get('epsilon_start', 1.0)
-        self.epsilon_end = config.get('epsilon_end', 0.05)
-        self.epsilon_decay = config.get('epsilon_decay', 0.995)
+        self.epsilon_end = config.get('epsilon_end', 0.01)
+        self.epsilon_decay = config.get('epsilon_decay', 0.9995)
         self.batch_size = config.get('batch_size', 64)
         self.gamma = config.get('gamma', 0.99)
         self.steps = 0

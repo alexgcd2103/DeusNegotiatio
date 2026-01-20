@@ -7,7 +7,11 @@ import traci
 import time
 
 import os
-
+import os
+from sensors.lidar_simulator import LidarSimulator
+from sensors.infrared_simulator import InfraredSimulator
+from sensors.motion_detector import MotionDetector
+from sensors.environmental_effects import EnvironmentalEffects
 class OxfordHydeParkEnv(gym.Env):
     """
     Custom Gym environment for Oxford-Hyde Park intersection
@@ -41,13 +45,28 @@ class OxfordHydeParkEnv(gym.Env):
         
         # Traffic light ID from network
         self.ts_id = 'oxford_hydepark_tl'
+
+        # --- Sensor Simulators ---
+        self.lidar = LidarSimulator()
+        self.infrared = InfraredSimulator()
+        self.motion = MotionDetector()
+        self.weather = EnvironmentalEffects()
         
-        # Define observation space (state representation)
-        # 16 lanes * 3 features + 12 phase slots = 60
+        # Define observation space (Multi-Sensor)
+        # 1. SUMO Ground Truth (60 features)
+        # 2. LiDAR Occupancy (8x8 = 64 features)
+        # 3. Thermal Features (4 quadrants + 1 emergency = 5 features)
+        # 4. Motion Features (4 vectors + 3 class dist = 7 features)
+        # 5. Weather State (4 features)
+        # 6. Time Features (2 features: sin/cos time)
+        # Total: 60 + 64 + 5 + 7 + 4 + 2 = 142 features
+        # Padding to 156 for future expansion/safety
+        
+        self.obs_dim = 156
         self.observation_space = spaces.Box(
             low=0, 
             high=np.inf, 
-            shape=(60,),  
+            shape=(self.obs_dim,),  
             dtype=np.float32
         )
         
@@ -108,6 +127,8 @@ class OxfordHydeParkEnv(gym.Env):
         for _ in range(self.delta_time):
             traci.simulationStep()
             self.simulation_step += 1
+            # Update weather dynamics
+            self.weather.step()
         
         # Get new observation
         obs = self._get_observation()
@@ -129,7 +150,8 @@ class OxfordHydeParkEnv(gym.Env):
         return obs, reward, terminated, truncated, info
     
     def _get_observation(self):
-        """Construct state vector from SUMO"""
+        """Construct multi-sensor state vector"""
+        # 1. SUMO Ground Truth (Base)
         state = []
         
         # Lane-level features for all 16 approach lanes
@@ -144,6 +166,37 @@ class OxfordHydeParkEnv(gym.Env):
             'hydepark_sb_approach_2', 'hydepark_sb_approach_3'
         ]
         
+        # Collect raw vehicle data for sensors
+        all_vehicles = []
+        for veh_id in traci.vehicle.getIDList():
+            x, y = traci.vehicle.getPosition(veh_id)
+            # Center relative to intersection
+            # We will calculate the centroid of all vehicles to center the view dynamically
+            # This avoids needing a specific hardcoded junction ID
+            
+            all_vehicles.append({
+                'id': veh_id,
+                'x': x,
+                'y': y,
+                'speed': traci.vehicle.getSpeed(veh_id),
+                'acceleration': traci.vehicle.getAcceleration(veh_id),
+                'angle': np.radians(traci.vehicle.getAngle(veh_id)),
+                'length': traci.vehicle.getLength(veh_id)
+            })
+            
+        # Center coordinates relative to average vehicle position (dynamic centering)
+        # This keeps the 'sensor' focused on the traffic cluster
+        if all_vehicles:
+            mean_x = np.mean([v['x'] for v in all_vehicles])
+            mean_y = np.mean([v['y'] for v in all_vehicles])
+            for v in all_vehicles:
+                v['x'] -= mean_x
+                v['y'] -= mean_y
+        
+        
+        # -- Feature Construction --
+        
+        # 1. Base SUMO Features (60)
         for lane in lanes:
             try:
                 queue = traci.lane.getLastStepHaltingNumber(lane)
@@ -159,6 +212,38 @@ class OxfordHydeParkEnv(gym.Env):
             phase_encoding[current_phase] = 1.0
         state.extend(phase_encoding)
         
+        # 2. LiDAR Features (64)
+        lidar_data = self.lidar.scan(all_vehicles)
+        lidar_data = self.weather.apply_to_lidar(lidar_data)
+        state.extend(lidar_data['occupancy_grid'].flatten())
+        
+        # 3. Infrared Features (5)
+        ir_data = self.infrared.capture(all_vehicles)
+        state.extend(ir_data['quadrant_heat'])
+        state.append(ir_data['emergency_heat'])
+        
+        # 4. Motion Features (7)
+        motion_data = self.motion.detect(all_vehicles)
+        motion_data = self.weather.apply_to_motion(motion_data)
+        state.extend(motion_data['motion_vectors']) # 4
+        state.extend(motion_data['class_dist'])     # 3
+        
+        # 5. Weather Features (4)
+        state.extend(self.weather.get_state_feature())
+        
+        # 6. Time Features (2)
+        sim_time = traci.simulation.getTime()
+        day_progress = (sim_time % 86400) / 86400.0 * 2 * np.pi
+        state.append(np.sin(day_progress))
+        state.append(np.cos(day_progress))
+        
+        # Pad to match obs_dim
+        current_len = len(state)
+        if current_len < self.obs_dim:
+            state.extend([0.0] * (self.obs_dim - current_len))
+        elif current_len > self.obs_dim:
+            state = state[:self.obs_dim]
+            
         return np.array(state, dtype=np.float32)
     
     def _compute_reward(self):

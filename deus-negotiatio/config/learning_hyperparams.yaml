@@ -20,6 +20,20 @@ multi_agent:
   coordination_weight: 0.1  # Beta parameter
   neighbor_radius: 1  # Number of hops to communicate
 
+multi_sensor:
+  enabled: true
+  lidar:
+    grid_size: 8
+    max_range: 100.0
+    noise_stddev: 0.05
+  infrared:
+    ambient_temp: 20.0
+    sensor_range: 50.0
+  motion:
+    range_m: 60.0
+  environment:
+    weather_change_prob: 0.001
+
 safety_constraints:
   min_pedestrian_walk: 7.0  # seconds
   min_green_time: 10.0
