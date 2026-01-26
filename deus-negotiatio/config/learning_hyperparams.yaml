@@ -1,12 +1,12 @@
 learning_rate: 0.0001
 gamma: 0.99
-tau: 0.005  # Soft update coefficient
-buffer_size: 100000
-batch_size: 64
+tau: 0.005
+buffer_size: 200000        # Increased for complex observation space
+batch_size: 128            # Increased batch size for stable gradients
 epsilon_start: 1.0
-epsilon_end: 0.01
-epsilon_decay: 0.9995  # Per-step multiplier: after 10000 steps, epsilon ≈ 0.007
-target_update_interval: 10  # Update target every 10 episodes
+epsilon_end: 0.05          # Higher minimum exploration
+epsilon_decay: 0.99995     # Much slower decay: ~50k steps to reach 0.08
+target_update_interval: 20
 gradient_clipping: 1.0
 num_episodes: 200
 steps_per_episode: 720  # 3600 sim seconds / 5 second delta_time
