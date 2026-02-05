@@ -1,0 +1,46 @@
+
+============================================================
+  Oxford-Hyde Park Intersection - GUI Simulation
+  Mode: TRAINED
+  Device: mps
+  Episodes: 1
+============================================================
+
+Using SensorFusionDQN for state_dim=156
+  Loaded trained model from: best_model.pth
+
+--- Episode 1/1 ---
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+Could not connect to TraCI server at localhost:64356 [Errno 61] Connection refused
+ Retrying in 1 seconds
+  Step  100 | Reward:   -36.18 | Queue:  41 | Vehicles:  263
+  Step  200 | Reward:  -309.59 | Queue: 165 | Vehicles:  344
+  Step  300 | Reward:  -953.23 | Queue: 213 | Vehicles:  369
+  Step  400 | Reward: -1812.97 | Queue: 198 | Vehicles:  350
+  Step  500 | Reward: -2694.49 | Queue: 211 | Vehicles:  352
+  Step  600 | Reward: -3509.48 | Queue: 214 | Vehicles:  343
+  Step  700 | Reward: -4545.53 | Queue: 243 | Vehicles:  354
+
+  Episode 1 Complete!
+  Total Reward: -4731.20
+  Total Wait Time: 4891.0 seconds
+  Throughput: 1 vehicles
+
+============================================================
+  Simulation Complete!
+============================================================
+

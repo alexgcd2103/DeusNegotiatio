@@ -75,6 +75,7 @@ def main():
     parser = argparse.ArgumentParser(description="DeusNegotiatio Main")
     parser.add_argument('--config', type=str, default='config/learning_hyperparams.yaml', help='Path to config file')
     parser.add_argument('--test', action='store_true', help='Run self-test')
+    parser.add_argument('--episodes', type=int, help='Override number of episodes')
     args = parser.parse_args()
     
     config_path = os.path.join(os.path.dirname(__file__), args.config)
@@ -86,6 +87,9 @@ def main():
         print(f"Warning: Config file not found at {config_path}. Using defaults.")
         config = {'learning_rate': 1e-4, 'batch_size': 32}
 
+    if args.episodes:
+        config['num_episodes'] = args.episodes
+        
     if torch.cuda.is_available():
         device = 'cuda'
     elif torch.backends.mps.is_available():

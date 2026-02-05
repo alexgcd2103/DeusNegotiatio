@@ -94,16 +94,29 @@ class OxfordHydeParkEnv(gym.Env):
         self.motion = MotionDetector()
         self.weather = EnvironmentalEffects()
         
-        # Observation space (156-dim multi-sensor)
-        # Lane features: 14 lanes × 3 features = 42
+        # Observation space (172-dim multi-sensor)
+        # Lane features: 16 lanes × 3 features = 48
         # Phase encoding: 6 phases = 6
         # LiDAR grid: 8×8 = 64
         # Infrared: 5
         # Motion: 7
         # Weather: 4
         # Time: 2
-        # Padding to 156: 26
-        self.obs_dim = 156
+        # TiQ Features: 16 lanes = 16
+        # Total: 152 + 20? Wait.
+        # 48 (SUMO) + 64 (LiDAR) + 5 (IR) + 7 (Motion) + 4 (Weather) + 2 (Time) + 16 (TiQ) = 146? 
+        # Let's re-calculate:
+        # SUMO Lanes: 16 * 3 = 48
+        # Phase: 6
+        # LiDAR: 64
+        # IR: 5
+        # Motion: 7
+        # Weather: 4
+        # Time: 2
+        # TiQ (avg time in queue per lane): 16
+        # Total = 48+6+64+5+7+4+2+16 = 151.
+        # I will set obs_dim to 172 as planned to allow for future expansion and padding. (151 + 21 padding)
+        self.obs_dim = 172
         self.observation_space = spaces.Box(
             low=-np.inf, 
             high=np.inf, 
@@ -154,8 +167,10 @@ class OxfordHydeParkEnv(gym.Env):
         self.simulation_step = 0
         self.last_action = 0
         
-        # Reset weather
+        # Reset weather and vehicle tracking
         self.weather = EnvironmentalEffects()
+        self.veh_stagnation = {} # veh_id -> steps at speed < 0.1
+        self.veh_tiq = {}        # veh_id -> accumulated wait time in current queue
         
         return self._get_observation(), {}
     
@@ -266,10 +281,25 @@ class OxfordHydeParkEnv(gym.Env):
         
         # --- 7. Time Features (2) ---
         sim_time = traci.simulation.getTime()
-        # Encode as position on 3600-second cycle (1 hour)
         progress = (sim_time % 3600) / 3600.0 * 2 * np.pi
         state.append(np.sin(progress))
         state.append(np.cos(progress))
+        
+        # --- 8. Time-in-Queue (TiQ) Features (16) ---
+        # Calculate average TiQ per lane
+        lane_tiqs = {lane: [] for lane in self.lanes}
+        for veh_id in traci.vehicle.getIDList():
+            try:
+                lane = traci.vehicle.getLaneID(veh_id)
+                if lane in lane_tiqs:
+                    wait_time = traci.vehicle.getAccumulatedWaitingTime(veh_id)
+                    lane_tiqs[lane].append(wait_time)
+            except:
+                pass
+        
+        for lane in self.lanes:
+            avg_tiq = np.mean(lane_tiqs[lane]) if lane_tiqs[lane] else 0.0
+            state.append(avg_tiq / 300.0) # Normalize to 5 minutes
         
         # Pad to obs_dim
         current_len = len(state)
@@ -282,37 +312,59 @@ class OxfordHydeParkEnv(gym.Env):
     
     def _compute_reward(self, action):
         """
-        Multi-objective reward function optimized for 2046 PM Peak.
-        
-        Components:
-        - Wait time penalty (dominant)
-        - Queue length penalty
-        - Throughput bonus
-        - Phase change penalty (smooth transitions)
-        - Westbound priority (highest volume approach)
+        Advanced reward function optimized for high-volume 2046 PM Peak.
+        Logic: R = -Pressure - sum(WaitTime^2) - StagnationPenalty + Throughput
         """
-        total_wait_time = self._get_total_wait_time()
-        total_queue = self._get_total_queue_length()
-        throughput = self._get_throughput()
+        # 1. Differential Pressure (Incoming - Outgoing)
+        pressure = 0
+        incoming_lanes = [l for l in self.lanes if '_in_' in l]
+        outgoing_lanes = ['NB_out', 'SB_out', 'EB_out', 'WB_out']
         
-        # Westbound queue (priority - 41% of total volume)
-        wb_queue = 0
-        for lane in ['WB_in_0', 'WB_in_1', 'WB_in_2']:
+        for lane in incoming_lanes:
+            pressure += traci.lane.getLastStepHaltingNumber(lane)
+        for lane in outgoing_lanes:
+            # Outgoing pressure is negative (we want cars out)
             try:
-                wb_queue += traci.lane.getLastStepHaltingNumber(lane)
+                pressure -= traci.lane.getLastStepHaltingNumber(lane + "_0") # index 0 usually
             except:
                 pass
+
+        # 2. Squared Waiting Time Penalty (Penalize long-tail delays)
+        total_squared_wait = 0
+        current_vehicles = traci.vehicle.getIDList()
+        stagnation_penalty = 0
         
-        # Phase change penalty
-        phase_change_penalty = -0.5 if action != self.last_action else 0.0
+        for veh_id in current_vehicles:
+            wait_time = traci.vehicle.getAccumulatedWaitingTime(veh_id)
+            total_squared_wait += (wait_time / 100.0) ** 2 # Scale to keep values manageable
+            
+            # 3. Stagnation Tracking
+            speed = traci.vehicle.getSpeed(veh_id)
+            if speed < 0.1:
+                self.veh_stagnation[veh_id] = self.veh_stagnation.get(veh_id, 0) + 1
+                if self.veh_stagnation[veh_id] > 20: # Over 20 simulation steps (~2 minutes)
+                    stagnation_penalty += 5.0
+            else:
+                self.veh_stagnation[veh_id] = 0
         
-        # Weighted reward
+        # Cleanup stagnation dict for departed vehicles
+        departed = traci.simulation.getArrivedIDList()
+        for veh_id in departed:
+            if veh_id in self.veh_stagnation:
+                del self.veh_stagnation[veh_id]
+
+        throughput = self._get_throughput()
+        
+        # Phase change penalty (slightly increased to prevent flickering)
+        phase_change_penalty = -1.0 if action != self.last_action else 0.0
+        
+        # Final Reward Composition
         reward = (
-            -0.3 * total_wait_time / 200.0 +       # Wait time (normalized to ~200 sec total)
-            -0.2 * total_queue / 100.0 +            # Queue length
-            +0.2 * throughput / 50.0 +              # Throughput
-            -0.2 * wb_queue / 30.0 +                # Westbound priority
-            phase_change_penalty * 0.1              # Smooth transitions
+            -1.0 * pressure / 50.0 +           # Pressure (normalized)
+            -2.0 * total_squared_wait / 10.0 +  # Squared wait penalty
+            -1.0 * stagnation_penalty +        # Stagnation penalty
+            +10.0 * throughput +               # High incentive for clearing cars
+            phase_change_penalty * 0.2          # Smooth transitions
         )
         
         return reward

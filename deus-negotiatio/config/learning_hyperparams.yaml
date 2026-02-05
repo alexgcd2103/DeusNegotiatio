@@ -5,7 +5,7 @@ buffer_size: 200000        # Increased for complex observation space
 batch_size: 128            # Increased batch size for stable gradients
 epsilon_start: 1.0
 epsilon_end: 0.05          # Higher minimum exploration
-epsilon_decay: 0.99995     # Much slower decay: ~50k steps to reach 0.08
+epsilon_decay: 0.99          # Increased decay for faster exploration shift
 target_update_interval: 20
 gradient_clipping: 1.0
 num_episodes: 200
@@ -33,6 +33,8 @@ multi_sensor:
     range_m: 60.0
   environment:
     weather_change_prob: 0.001
+  observation:
+    state_dim: 172            # Updated for 16x3 (SUMO) + 64 (LiDAR) + 5 (IR) + 7 (Motion) + 4 (Weather) + 2 (Time) + 16 (TiQ) + padding
 
 safety_constraints:
   min_pedestrian_walk: 7.0  # seconds

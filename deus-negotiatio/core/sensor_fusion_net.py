@@ -7,14 +7,16 @@ class SensorFusionDQN(nn.Module):
     Attention-based Multi-Branch Network for fusing different sensor modalities.
     Dynamically weighs sensor inputs based on context (weather, reliability).
     
-    Inputs (concatenated 156-dim vector):
-    - 0-59:    SUMO Ground Truth (60)
-    - 60-123:  LiDAR Occupancy (64) -> Reshaped to 8x8
-    - 124-128: Infrared (5)
-    - 129-135: Motion (7)
-    - 136-139: Weather (4)
-    - 140-141: Time (2)
-    - 142-155: Padding (14)
+    Inputs (concatenated 172-dim vector):
+    - 0-47:    SUMO Ground Truth (48: 16 lanes * 3)
+    - 48-53:   Phase Encoding (6)
+    - 54-117:  LiDAR Occupancy (64)
+    - 118-122: Infrared (5)
+    - 123-129: Motion (7)
+    - 130-133: Weather (4)
+    - 134-135: Time (2)
+    - 136-151: TiQ (16: 16 lanes * 1)
+    - 152-171: Padding (20)
     """
     
     def __init__(self, state_dim, action_dim):
@@ -26,8 +28,9 @@ class SensorFusionDQN(nn.Module):
         # --- Encoders ---
         
         # 1. Ground Truth Encoder (FC)
+        # 48 (SUMO) + 6 (Phase) + 16 (TiQ) = 70 features
         self.gt_encoder = nn.Sequential(
-            nn.Linear(60, 128),
+            nn.Linear(70, 128),
             nn.LeakyReLU(),
             nn.Linear(128, 64),
             nn.LeakyReLU()
@@ -87,10 +90,16 @@ class SensorFusionDQN(nn.Module):
         batch_size = state.size(0)
         
         # Slicing the input vector
-        gt_input = state[:, :60]
-        lidar_input = state[:, 60:124]
+        # GT: SUMO (48) + Phase (6) + TiQ (16)
+        # We need to gather these from their specific indices
+        sumo_phase = state[:, :54]      # 0-53
+        tiq = state[:, 136:152]         # 136-151
+        gt_input = torch.cat([sumo_phase, tiq], dim=1) # 70
+        
+        lidar_input = state[:, 54:118]   # 54-117
+        
         # Context features (IR, Motion, Weather, Time)
-        context_input = state[:, 124:142]
+        context_input = state[:, 118:136] # 118-135
         
         # Encode
         gt_emb = self.gt_encoder(gt_input)        # [B, 64]
