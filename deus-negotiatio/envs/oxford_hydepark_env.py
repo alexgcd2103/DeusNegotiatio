@@ -50,9 +50,11 @@ class OxfordHydeParkEnv(gym.Env):
                  delta_time=5,
                  yellow_time=4,
                  min_green=10,
-                 max_green=55):
+                 max_green=55,
+                 extra_sumo_args=None):
         
         super().__init__()
+        self.extra_sumo_args = extra_sumo_args or []
         
         # Resolve paths relative to deus-negotiatio directory
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -79,12 +81,12 @@ class OxfordHydeParkEnv(gym.Env):
             'NB_in_0', 'NB_in_1', 'NB_in_2', 'NB_in_3',
             # Southbound (4 lanes)
             'SB_in_0', 'SB_in_1', 'SB_in_2', 'SB_in_3',
-            # Eastbound (3 lanes)
-            'EB_in_0', 'EB_in_1', 'EB_in_2',
-            # Westbound (3 lanes)
-            'WB_in_0', 'WB_in_1', 'WB_in_2'
+            # Eastbound (4 lanes)
+            'EB_in_0', 'EB_in_1', 'EB_in_2', 'EB_in_3',
+            # Westbound (4 lanes)
+            'WB_in_0', 'WB_in_1', 'WB_in_2', 'WB_in_3'
         ]
-        self.num_lanes = 14
+        self.num_lanes = 16
 
         # --- Sensor Simulators ---
         self.lidar = LidarSimulator()
@@ -145,7 +147,7 @@ class OxfordHydeParkEnv(gym.Env):
             '--waiting-time-memory', '1000',
             '--max-depart-delay', '0',
             '--start'
-        ]
+        ] + self.extra_sumo_args
         
         traci.start(sumo_cmd)
         self.sumo_running = True
@@ -353,10 +355,10 @@ class OxfordHydeParkEnv(gym.Env):
             3: Request NS (triggers yellow -> all-red -> NS green)
         """
         action_phase_map = {
-            0: 0,   # NS Through Green
-            1: 3,   # EW Through Green (will trigger transition)
-            2: 3,   # EW Through Green
-            3: 0,   # NS Through Green (will trigger transition)
+            0: 0,   # NS Through Green (Phase 0 in net.xml)
+            1: 4,   # EW Through Green (Phase 4 in net.xml)
+            2: 4,   # EW Through Green (Phase 4 in net.xml)
+            3: 0,   # NS Through Green (Phase 0 in net.xml)
         }
         return action_phase_map.get(action, 0)
 

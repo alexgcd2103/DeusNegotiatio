@@ -3,46 +3,31 @@
 Oxford-Hyde Park Intersection - GUI Visualization
 
 Run a trained DeusNegotiatio agent with SUMO-GUI visualization.
-This allows you to watch the AI control traffic in real-time.
-
-Usage:
-    python run_sim_gui.py                    # Run with trained model
-    python run_sim_gui.py --baseline         # Run with baseline timing
-    python run_sim_gui.py --random           # Run with random actions
+Includes high-fidelity metrics: queues, congestion, and time reduction.
 """
 
 import argparse
 import os
 import sys
 import time
+import torch
+import numpy as np
+import yaml
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import torch
-import numpy as np
-
+from envs.oxford_hydepark_env import OxfordHydeParkEnv
+from core.agent import DeusNegotiatioAgent
 
 def run_gui_simulation(mode='trained', model_path='best_model.pth', episodes=1):
     """
-    Run SUMO-GUI simulation with specified control mode.
-    
-    Args:
-        mode: 'trained', 'baseline', or 'random'
-        model_path: Path to trained model (for 'trained' mode)
-        episodes: Number of episodes to run
+    Run SUMO-GUI simulation with specified control mode and detailed metrics.
     """
-    from envs.oxford_hydepark_env import OxfordHydeParkEnv
-    from core.agent import DeusNegotiatioAgent
-    import yaml
-    
     # Load config
     config_path = os.path.join(os.path.dirname(__file__), 'config/learning_hyperparams.yaml')
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
-    
-    # Create environment with GUI
-    env = OxfordHydeParkEnv(use_gui=True)
     
     # Determine device
     if torch.cuda.is_available():
@@ -51,12 +36,16 @@ def run_gui_simulation(mode='trained', model_path='best_model.pth', episodes=1):
         device = 'mps'
     else:
         device = 'cpu'
+
+    # Create environment with GUI and custom view settings
+    view_path = os.path.join(os.path.dirname(__file__), "network/view.xml")
+    extra_args = ["--gui-settings-file", view_path]
+    env = OxfordHydeParkEnv(use_gui=True, extra_sumo_args=extra_args)
     
     print(f"\n{'='*60}")
-    print(f"  Oxford-Hyde Park Intersection - GUI Simulation")
-    print(f"  Mode: {mode.upper()}")
-    print(f"  Device: {device}")
-    print(f"  Episodes: {episodes}")
+    print(f"  Oxford-Hyde Park Intersection - High Fidelity Visualization")
+    print(f"  Mode: {mode.upper()} | Device: {device}")
+    print(f"  Projected Layout: LOS C Modified (2046)")
     print(f"{'='*60}\n")
     
     # Load trained agent if using trained mode
@@ -70,88 +59,83 @@ def run_gui_simulation(mode='trained', model_path='best_model.pth', episodes=1):
             device=device
         )
         
-        # Load trained weights
         full_model_path = os.path.join(os.path.dirname(__file__), model_path)
         if os.path.exists(full_model_path):
             agent.load(full_model_path)
-            agent.epsilon = 0.0  # No exploration during visualization
-            print(f"  Loaded trained model from: {model_path}")
+            agent.epsilon = 0.0
+            print(f"  Loaded trained model: {model_path}")
         else:
-            print(f"  WARNING: Model not found at {full_model_path}")
-            print(f"  Falling back to random actions")
+            print(f"  WARNING: Model {model_path} not found. Using random actions.")
             mode = 'random'
     
-    # Run episodes
+    # Track metrics
+    initial_delay = None
+
     for episode in range(episodes):
         print(f"\n--- Episode {episode + 1}/{episodes} ---")
-        
         state, _ = env.reset()
         episode_reward = 0
         step = 0
         
-        while True:
-            # Select action based on mode
-            if mode == 'trained' and agent is not None:
-                action = agent.select_action(state)
-            elif mode == 'baseline':
-                # Let SUMO handle timing with baseline program
-                action = 0  # Keep current phase
-            else:  # random
-                action = env.action_space.sample()
+        try:
+            while True:
+                if mode == 'trained' and agent is not None:
+                    action = agent.select_action(state)
+                elif mode == 'baseline':
+                    action = 0 
+                else:
+                    action = env.action_space.sample()
+                
+                next_state, reward, terminated, truncated, info = env.step(action)
+                episode_reward += reward
+                state = next_state
+                step += 1
+                
+                # --- Metrics Calculation ---
+                total_wait = info.get('total_wait_time', 0)
+                veh_count = info.get('vehicles_in_sim', 0)
+                avg_delay = total_wait / max(1, veh_count)
+                
+                # Congestion: Ratio of halting vehicles to total vehicles
+                congestion = (info.get('queue_length', 0) / max(1, veh_count)) * 100
+                
+                if initial_delay is None and step > 20: 
+                    initial_delay = avg_delay
+                
+                reduction = initial_delay - avg_delay if initial_delay else 0
+                
+                # Real-time dashboard
+                if step % 2 == 0:
+                    print(f"  [Step {step:4d}] "
+                          f"Queues: {info.get('queue_length', 0):3d} | "
+                          f"Congestion: {congestion:4.1f}% | "
+                          f"Avg Delay: {avg_delay:6.1f}s | "
+                          f"AI Improvement: {reduction:+6.1f}s", end='\r')
+                
+                if terminated or truncated:
+                    break
+                    
+        except KeyboardInterrupt:
+            print("\n  Simulation interrupted by user.")
+            break
             
-            # Take step
-            next_state, reward, terminated, truncated, info = env.step(action)
-            
-            episode_reward += reward
-            state = next_state
-            step += 1
-            
-            # Print progress every 100 steps
-            if step % 100 == 0:
-                print(f"  Step {step:4d} | Reward: {episode_reward:8.2f} | "
-                      f"Queue: {info['queue_length']:3d} | "
-                      f"Vehicles: {info['vehicles_in_sim']:4d}")
-            
-            if terminated or truncated:
-                break
-        
-        print(f"\n  Episode {episode + 1} Complete!")
-        print(f"  Total Reward: {episode_reward:.2f}")
-        print(f"  Total Wait Time: {info['total_wait_time']:.1f} seconds")
-        print(f"  Throughput: {info['throughput']} vehicles")
-    
-    env.close()
-    print(f"\n{'='*60}")
-    print("  Simulation Complete!")
-    print(f"{'='*60}\n")
+        print(f"\n\n  Episode Result:")
+        print(f"  - Avg Congestion: {congestion:.1f}%")
+        print(f"  - Final Delay Savings: {reduction:.1f} seconds/vehicle")
+        print(f"  - Total Vehicles Processed: {info.get('throughput', 0)}")
 
+    env.close()
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Oxford-Hyde Park simulation with GUI")
-    parser.add_argument('--baseline', action='store_true', 
-                        help='Use baseline timing (no AI)')
-    parser.add_argument('--random', action='store_true',
-                        help='Use random actions')
-    parser.add_argument('--model', type=str, default='best_model.pth',
-                        help='Path to trained model')
-    parser.add_argument('--episodes', type=int, default=1,
-                        help='Number of episodes to run')
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--baseline', action='store_true')
+    parser.add_argument('--random', action='store_true')
+    parser.add_argument('--model', type=str, default='best_model.pth')
+    parser.add_argument('--episodes', type=int, default=1)
     args = parser.parse_args()
     
-    if args.baseline:
-        mode = 'baseline'
-    elif args.random:
-        mode = 'random'
-    else:
-        mode = 'trained'
-    
-    run_gui_simulation(
-        mode=mode,
-        model_path=args.model,
-        episodes=args.episodes
-    )
-
+    mode = 'baseline' if args.baseline else ('random' if args.random else 'trained')
+    run_gui_simulation(mode=mode, model_path=args.model, episodes=args.episodes)
 
 if __name__ == "__main__":
     main()

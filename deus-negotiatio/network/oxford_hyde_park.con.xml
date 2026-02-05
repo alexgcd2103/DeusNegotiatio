@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connections>
+    <!-- Northbound Connections -->
+    <connection from="NB_in" to="EB_out" fromLane="0" toLane="0"/>
+    <connection from="NB_in" to="NB_out" fromLane="1" toLane="0"/>
+    <connection from="NB_in" to="NB_out" fromLane="2" toLane="1"/>
+    <connection from="NB_in" to="WB_out" fromLane="3" toLane="2"/>
+
+    <!-- Southbound Connections -->
+    <connection from="SB_in" to="WB_out" fromLane="0" toLane="0"/>
+    <connection from="SB_in" to="SB_out" fromLane="1" toLane="0"/>
+    <connection from="SB_in" to="SB_out" fromLane="2" toLane="1"/>
+    <connection from="SB_in" to="EB_out" fromLane="3" toLane="2"/>
+
+    <!-- Eastbound Connections -->
+    <connection from="EB_in" to="NB_out" fromLane="0" toLane="0"/>
+    <connection from="EB_in" to="EB_out" fromLane="1" toLane="0"/>
+    <connection from="EB_in" to="EB_out" fromLane="2" toLane="1"/>
+    <connection from="EB_in" to="SB_out" fromLane="3" toLane="2"/>
+
+    <!-- Westbound Connections -->
+    <connection from="WB_in" to="SB_out" fromLane="0" toLane="0"/>
+    <connection from="WB_in" to="WB_out" fromLane="1" toLane="0"/>
+    <connection from="WB_in" to="WB_out" fromLane="2" toLane="1"/>
+    <connection from="WB_in" to="NB_out" fromLane="3" toLane="2"/>
+    
+    <!-- Feed to In connections (automatic usually, but explicitly link) -->
+    <connection from="NB_feed" to="NB_in" fromLane="0" toLane="1"/>
+    <connection from="NB_feed" to="NB_in" fromLane="1" toLane="2"/>
+    <connection from="SB_feed" to="SB_in" fromLane="0" toLane="1"/>
+    <connection from="SB_feed" to="SB_in" fromLane="1" toLane="2"/>
+    <connection from="EB_feed" to="EB_in" fromLane="0" toLane="1"/>
+    <connection from="EB_feed" to="EB_in" fromLane="1" toLane="2"/>
+    <connection from="WB_feed" to="WB_in" fromLane="0" toLane="1"/>
+    <connection from="WB_feed" to="WB_in" fromLane="1" toLane="2"/>
+</connections>

@@ -1,30 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Oxford-Hyde Park Intersection Additional Definitions -->
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
             xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
 
-    <!-- Induction Loop Detectors (50m from intersection) -->
-    
-    <!-- NB Approach (4 lanes) -->
-    <inductionLoop id="det_NB_0" lane="NB_in_0" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_NB_1" lane="NB_in_1" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_NB_2" lane="NB_in_2" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_NB_3" lane="NB_in_3" pos="400" freq="1" file="detector_output.xml"/>
+    <!-- Induction Loop Detectors (65m from junction center) -->
+    <!-- Matching the 16 lanes in current net.xml -->
+    <inductionLoop id="det_NB_0" lane="NB_in_0" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_NB_1" lane="NB_in_1" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_NB_2" lane="NB_in_2" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_NB_3" lane="NB_in_3" pos="65" freq="1" file="detector_output.xml"/>
 
-    <!-- SB Approach (4 lanes) -->
-    <inductionLoop id="det_SB_0" lane="SB_in_0" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_SB_1" lane="SB_in_1" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_SB_2" lane="SB_in_2" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_SB_3" lane="SB_in_3" pos="400" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_SB_0" lane="SB_in_0" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_SB_1" lane="SB_in_1" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_SB_2" lane="SB_in_2" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_SB_3" lane="SB_in_3" pos="65" freq="1" file="detector_output.xml"/>
 
-    <!-- EB Approach (3 lanes) -->
-    <inductionLoop id="det_EB_0" lane="EB_in_0" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_EB_1" lane="EB_in_1" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_EB_2" lane="EB_in_2" pos="400" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_EB_0" lane="EB_in_0" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_EB_1" lane="EB_in_1" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_EB_2" lane="EB_in_2" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_EB_3" lane="EB_in_3" pos="65" freq="1" file="detector_output.xml"/>
 
-    <!-- WB Approach (3 lanes) -->
-    <inductionLoop id="det_WB_0" lane="WB_in_0" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_WB_1" lane="WB_in_1" pos="400" freq="1" file="detector_output.xml"/>
-    <inductionLoop id="det_WB_2" lane="WB_in_2" pos="400" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_WB_0" lane="WB_in_0" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_WB_1" lane="WB_in_1" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_WB_2" lane="WB_in_2" pos="65" freq="1" file="detector_output.xml"/>
+    <inductionLoop id="det_WB_3" lane="WB_in_3" pos="65" freq="1" file="detector_output.xml"/>
 
 </additional>

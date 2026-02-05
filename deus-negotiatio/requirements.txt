@@ -14,3 +14,4 @@ sumo-rl>=1.4.3
 pettingzoo>=1.23.0
 gym>=0.26.0
 tqdm>=4.64.0
+scikit-learn>=1.0.0

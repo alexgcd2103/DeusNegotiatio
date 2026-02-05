@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<viewsettings>
+    <scheme name="Project_Redesign">
+        <opengl value="true"/>
+        <antialiasing value="true"/>
+        <waitingTime value="true"/>
+        <junctions>
+            <showJunctions value="true"/>
+            <junctionName value="true"/>
+            <internalJunctions value="true"/>
+        </junctions>
+        <lanes>
+            <showLaneArrows value="true"/>
+            <showLaneIndices value="false"/>
+            <laneWidth value="1"/>
+            <laneColor value="gray"/>
+        </lanes>
+        <vehicles>
+            <showVehicleName value="false"/>
+            <vehicleSize value="1.5"/>
+            <vehicleColor value="blue"/>
+        </vehicles>
+        <persons>
+            <showPersonName value="false"/>
+            <personSize value="1.5"/>
+            <personColor value="red"/>
+        </persons>
+        <legend value="true"/>
+    </scheme>
+    <viewport x="500" y="500" zoom="300"/>
+    <delay value="50"/>
+</viewsettings>

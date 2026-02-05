@@ -1,70 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Oxford-Hyde Park Intersection Routes & Demand
-     Traffic Volumes: 2046 PM Peak Hour (6,371 veh/hr total)
--->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
     <!-- Vehicle Types -->
-    <vType id="passenger" accel="2.6" decel="4.5" sigma="0.3" length="5.0" minGap="2.5" 
-           maxSpeed="20.0" color="0.8,0.8,0.2" guiShape="passenger"/>
-    <vType id="truck" accel="1.5" decel="4.0" sigma="0.2" length="10.0" minGap="3.0" 
-           maxSpeed="18.0" color="0.3,0.3,0.8" guiShape="truck"/>
-    <vType id="bus" accel="1.2" decel="3.5" sigma="0.2" length="12.0" minGap="2.5" 
-           maxSpeed="16.67" color="0.2,0.8,0.2" guiShape="bus"/>
+    <vType id="passenger" accel="2.6" decel="4.5" sigma="0.5" length="5.0" minGap="2.5" 
+           maxSpeed="13.89" color="0.2,0.6,1.0" guiShape="passenger"/> <!-- 50 km/h -->
+    <vType id="truck" accel="1.2" decel="3.5" sigma="0.3" length="12.0" minGap="3.0" 
+           maxSpeed="11.11" color="0.8,0.4,0.1" guiShape="truck"/>
+    <vType id="bus" accel="1.0" decel="3.0" sigma="0.3" length="15.0" minGap="3.0" 
+           maxSpeed="11.11" color="1.0,0.8,0.0" guiShape="bus"/>
 
-    <!-- Route Definitions -->
-    <!-- NB Routes (from S, going through C) -->
-    <route id="NB_left" edges="NB_in WB_out"/>
-    <route id="NB_through" edges="NB_in NB_out"/>
-    <route id="NB_right" edges="NB_in EB_out"/>
+    <!-- 
+    REDESIGNED ROUTES (LOS C Modified 2046) 
+    Approach Sequence: Feed -> In -> Out
+    -->
+    
+    <!-- NB (South to North) -->
+    <route id="NB_r" edges="NB_feed NB_in EB_out"/>
+    <route id="NB_t" edges="NB_feed NB_in NB_out"/>
+    <route id="NB_l" edges="NB_feed NB_in WB_out"/>
 
-    <!-- SB Routes (from N, going through C) -->
-    <route id="SB_left" edges="SB_in EB_out"/>
-    <route id="SB_through" edges="SB_in SB_out"/>
-    <route id="SB_right" edges="SB_in WB_out"/>
+    <!-- SB (North to South) -->
+    <route id="SB_r" edges="SB_feed SB_in WB_out"/>
+    <route id="SB_t" edges="SB_feed SB_in SB_out"/>
+    <route id="SB_l" edges="SB_feed SB_in EB_out"/>
 
-    <!-- EB Routes (from E, going through C) -->
-    <route id="EB_left" edges="EB_in SB_out"/>
-    <route id="EB_through" edges="EB_in WB_out"/>
-    <route id="EB_right" edges="EB_in NB_out"/>
+    <!-- EB (West to East) -->
+    <route id="EB_r" edges="EB_feed EB_in NB_out"/>
+    <route id="EB_t" edges="EB_feed EB_in EB_out"/>
+    <route id="EB_l" edges="EB_feed EB_in SB_out"/>
 
-    <!-- WB Routes (from W, going through C) -->
-    <route id="WB_left" edges="WB_in NB_out"/>
-    <route id="WB_through" edges="WB_in EB_out"/>
-    <route id="WB_right" edges="WB_in SB_out"/>
+    <!-- WB (East to West) -->
+    <route id="WB_r" edges="WB_feed WB_in SB_out"/>
+    <route id="WB_t" edges="WB_feed WB_in WB_out"/>
+    <route id="WB_l" edges="WB_feed WB_in NB_out"/>
 
-    <!-- ============ TRAFFIC DEMAND (2046 PM Peak) ============ -->
+    <!-- TRAFFIC FLOWS (2046 PM Peak: 6,371 vehicles/hour) -->
 
-    <!-- NB APPROACH: 900 veh/hr -->
-    <flow id="NB_left_f" route="NB_left" type="passenger" begin="0" end="3600" vehsPerHour="77" departLane="0"/>
-    <flow id="NB_thru1_f" route="NB_through" type="passenger" begin="0" end="3600" vehsPerHour="388" departLane="1"/>
-    <flow id="NB_thru2_f" route="NB_through" type="passenger" begin="0" end="3600" vehsPerHour="388" departLane="2"/>
-    <flow id="NB_right_f" route="NB_right" type="passenger" begin="0" end="3600" vehsPerHour="47" departLane="3"/>
+    <!-- Northbound: 900 vph -->
+    <flow id="NB_r_f" route="NB_r" type="passenger" begin="0" end="3600" vehsPerHour="50" departLane="0"/>
+    <flow id="NB_t1_f" route="NB_t" type="passenger" begin="0" end="3600" vehsPerHour="350" departLane="0"/>
+    <flow id="NB_t2_f" route="NB_t" type="passenger" begin="0" end="3600" vehsPerHour="350" departLane="1"/>
+    <flow id="NB_l_f" route="NB_l" type="passenger" begin="0" end="3600" vehsPerHour="150" departLane="1"/>
 
-    <!-- SB APPROACH: 908 veh/hr -->
-    <flow id="SB_left_f" route="SB_left" type="passenger" begin="0" end="3600" vehsPerHour="78" departLane="0"/>
-    <flow id="SB_thru1_f" route="SB_through" type="passenger" begin="0" end="3600" vehsPerHour="392" departLane="1"/>
-    <flow id="SB_thru2_f" route="SB_through" type="passenger" begin="0" end="3600" vehsPerHour="391" departLane="2"/>
-    <flow id="SB_right_f" route="SB_right" type="passenger" begin="0" end="3600" vehsPerHour="47" departLane="3"/>
+    <!-- Southbound: 908 vph -->
+    <flow id="SB_r_f" route="SB_r" type="passenger" begin="0" end="3600" vehsPerHour="50" departLane="0"/>
+    <flow id="SB_t1_f" route="SB_t" type="passenger" begin="0" end="3600" vehsPerHour="350" departLane="0"/>
+    <flow id="SB_t2_f" route="SB_t" type="passenger" begin="0" end="3600" vehsPerHour="350" departLane="1"/>
+    <flow id="SB_l_f" route="SB_l" type="passenger" begin="0" end="3600" vehsPerHour="158" departLane="1"/>
 
-    <!-- EB APPROACH: 1,917 veh/hr -->
-    <flow id="EB_left_f" route="EB_left" type="passenger" begin="0" end="3600" vehsPerHour="193" departLane="0"/>
-    <flow id="EB_thru_f" route="EB_through" type="passenger" begin="0" end="3600" vehsPerHour="918" departLane="1"/>
-    <flow id="EB_right_f" route="EB_right" type="passenger" begin="0" end="3600" vehsPerHour="806" departLane="2"/>
+    <!-- Eastbound: 1,917 vph -->
+    <flow id="EB_r_f" route="EB_r" type="passenger" begin="0" end="3600" vehsPerHour="200" departLane="0"/>
+    <flow id="EB_t1_f" route="EB_t" type="passenger" begin="0" end="3600" vehsPerHour="700" departLane="0"/>
+    <flow id="EB_t2_f" route="EB_t" type="passenger" begin="0" end="3600" vehsPerHour="700" departLane="1"/>
+    <flow id="EB_l_f" route="EB_l" type="passenger" begin="0" end="3600" vehsPerHour="317" departLane="1"/>
 
-    <!-- WB APPROACH: 2,646 veh/hr (HIGHEST) -->
-    <flow id="WB_left_f" route="WB_left" type="passenger" begin="0" end="3600" vehsPerHour="77" departLane="0"/>
-    <flow id="WB_thru_f" route="WB_through" type="passenger" begin="0" end="3600" vehsPerHour="1727" departLane="1"/>
-    <flow id="WB_right_f" route="WB_right" type="passenger" begin="0" end="3600" vehsPerHour="842" departLane="2"/>
-
-    <!-- TRUCKS (88/hr distributed) -->
-    <flow id="truck_EB" route="EB_through" type="truck" begin="0" end="3600" vehsPerHour="20" departLane="1"/>
-    <flow id="truck_WB" route="WB_through" type="truck" begin="0" end="3600" vehsPerHour="25" departLane="1"/>
-    <flow id="truck_NB" route="NB_through" type="truck" begin="0" end="3600" vehsPerHour="22" departLane="1"/>
-    <flow id="truck_SB" route="SB_through" type="truck" begin="0" end="3600" vehsPerHour="21" departLane="1"/>
-
-    <!-- BUSES (3/hr) -->
-    <flow id="bus_WB" route="WB_through" type="bus" begin="0" end="3600" vehsPerHour="3" departLane="1"/>
+    <!-- Westbound: 2,646 vph -->
+    <flow id="WB_r_f" route="WB_r" type="passenger" begin="0" end="3600" vehsPerHour="300" departLane="0"/>
+    <flow id="WB_t1_f" route="WB_t" type="passenger" begin="0" end="3600" vehsPerHour="1000" departLane="0"/>
+    <flow id="WB_t2_f" route="WB_t" type="passenger" begin="0" end="3600" vehsPerHour="1000" departLane="1"/>
+    <flow id="WB_l_f" route="WB_l" type="passenger" begin="0" end="3600" vehsPerHour="346" departLane="1"/>
 
 </routes>

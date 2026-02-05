@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Oxford-Hyde Park Intersection Nodes -->
-<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-       xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">
-
-    <!-- Central intersection (traffic light) -->
-    <node id="C" x="0" y="0" type="traffic_light"/>
-
-    <!-- Entry/Exit nodes -->
-    <node id="N" x="0" y="500" type="priority"/>
-    <node id="S" x="0" y="-500" type="priority"/>
-    <node id="E" x="500" y="0" type="priority"/>
-    <node id="W" x="-500" y="0" type="priority"/>
-
+<nodes>
+    <!-- Center of the redesigned intersection -->
+    <node id="C" x="500" y="500" type="traffic_light" tl="C"/>
+    
+    <!-- Approach Boundaries (115m from center) -->
+    <node id="N" x="500" y="615" type="uncontrolled"/>
+    <node id="S" x="500" y="385" type="uncontrolled"/>
+    <node id="E" x="615" y="500" type="uncontrolled"/>
+    <node id="W" x="385" y="500" type="uncontrolled"/>
+    
+    <!-- Feed Nodes (Extended approaches for realistic flow) -->
+    <node id="N_feed" x="500" y="1000" type="priority"/>
+    <node id="S_feed" x="500" y="0" type="priority"/>
+    <node id="E_feed" x="1000" y="500" type="priority"/>
+    <node id="W_feed" x="0" y="500" type="priority"/>
 </nodes>

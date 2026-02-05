@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Oxford-Hyde Park Intersection Edges -->
-<edges xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-       xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
+<edges>
+    <!-- Approaches (Incoming) -->
+    <!-- Lane 0: Right, 1-2: Through, 3: Left -->
+    <edge id="NB_in" from="S" to="C" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0" allow="all"/>
+        <lane index="1" width="3.3" allow="all"/>
+        <lane index="2" width="3.3" allow="all"/>
+        <lane index="3" width="3.0" allow="all"/>
+    </edge>
+    <edge id="SB_in" from="N" to="C" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0" allow="all"/>
+        <lane index="1" width="3.3" allow="all"/>
+        <lane index="2" width="3.3" allow="all"/>
+        <lane index="3" width="3.0" allow="all"/>
+    </edge>
+    <edge id="EB_in" from="W" to="C" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0" allow="all"/>
+        <lane index="1" width="3.3" allow="all"/>
+        <lane index="2" width="3.3" allow="all"/>
+        <lane index="3" width="3.0" allow="all"/>
+    </edge>
+    <edge id="WB_in" from="E" to="C" numLanes="4" speed="16.67">
+        <lane index="0" width="3.0" allow="all"/>
+        <lane index="1" width="3.3" allow="all"/>
+        <lane index="2" width="3.3" allow="all"/>
+        <lane index="3" width="3.0" allow="all"/>
+    </edge>
 
-    <!-- NB Approach (from S to C): 4 lanes -->
-    <edge id="NB_in" from="S" to="C" numLanes="4" speed="16.67"/>
-    <!-- NB Departure (from C to N): 3 lanes -->
+    <!-- Departures (Outgoing) -->
     <edge id="NB_out" from="C" to="N" numLanes="3" speed="16.67"/>
-
-    <!-- SB Approach (from N to C): 4 lanes -->
-    <edge id="SB_in" from="N" to="C" numLanes="4" speed="16.67"/>
-    <!-- SB Departure (from C to S): 3 lanes -->
     <edge id="SB_out" from="C" to="S" numLanes="3" speed="16.67"/>
-
-    <!-- EB Approach (from E to C): 3 lanes -->
-    <edge id="EB_in" from="E" to="C" numLanes="3" speed="16.67"/>
-    <!-- EB Departure (from C to E): 3 lanes -->
     <edge id="EB_out" from="C" to="E" numLanes="3" speed="16.67"/>
-
-    <!-- WB Approach (from W to C): 3 lanes -->
-    <edge id="WB_in" from="W" to="C" numLanes="3" speed="16.67"/>
-    <!-- WB Departure (from C to W): 3 lanes -->
     <edge id="WB_out" from="C" to="W" numLanes="3" speed="16.67"/>
 
+    <!-- Extended Feed Segments -->
+    <edge id="NB_feed" from="S_feed" to="S" numLanes="2" speed="16.67"/>
+    <edge id="SB_feed" from="N_feed" to="N" numLanes="2" speed="16.67"/>
+    <edge id="EB_feed" from="W_feed" to="W" numLanes="2" speed="16.67"/>
+    <edge id="WB_feed" from="E_feed" to="E" numLanes="2" speed="16.67"/>
 </edges>

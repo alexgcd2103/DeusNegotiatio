@@ -49,6 +49,9 @@ class TrainingLoop:
                 
                 if done:
                     break
+                
+                if step % 100 == 0:
+                    print(f"  Step {step}/{self.steps_per_episode}...", end='\r')
             
             # Track rewards
             reward_history.append(episode_reward)
