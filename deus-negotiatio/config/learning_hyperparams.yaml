@@ -5,7 +5,7 @@ buffer_size: 200000        # Increased for complex observation space
 batch_size: 128            # Increased batch size for stable gradients
 epsilon_start: 1.0
 epsilon_end: 0.05          # Higher minimum exploration
-epsilon_decay: 0.99          # Increased decay for faster exploration shift
+epsilon_decay: 0.99998      # Much slower decay: ~50k steps to reach 0.05
 target_update_interval: 20
 gradient_clipping: 1.0
 num_episodes: 200

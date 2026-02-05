@@ -312,38 +312,39 @@ class OxfordHydeParkEnv(gym.Env):
     
     def _compute_reward(self, action):
         """
-        Advanced reward function optimized for high-volume 2046 PM Peak.
-        Logic: R = -Pressure - sum(WaitTime^2) - StagnationPenalty + Throughput
+        Stabilized reward function for high-volume 2046 PM Peak.
+        Prevents exploding rewards while keeping penalties for long-tail wait times.
         """
         # 1. Differential Pressure (Incoming - Outgoing)
         pressure = 0
         incoming_lanes = [l for l in self.lanes if '_in_' in l]
-        outgoing_lanes = ['NB_out', 'SB_out', 'EB_out', 'WB_out']
+        # Map of outgoing edges to their primary entry lane
+        outgoing_map = {'NB_out': 'NB_out_0', 'SB_out': 'SB_out_0', 'EB_out': 'EB_out_0', 'WB_out': 'WB_out_0'}
         
         for lane in incoming_lanes:
             pressure += traci.lane.getLastStepHaltingNumber(lane)
-        for lane in outgoing_lanes:
-            # Outgoing pressure is negative (we want cars out)
+        for edge_id, lane_id in outgoing_map.items():
             try:
-                pressure -= traci.lane.getLastStepHaltingNumber(lane + "_0") # index 0 usually
+                pressure -= traci.lane.getLastStepHaltingNumber(lane_id)
             except:
                 pass
 
-        # 2. Squared Waiting Time Penalty (Penalize long-tail delays)
-        total_squared_wait = 0
+        # 2. Log-Scaled Waiting Time Penalty
+        # log2(1 + wait_time) provides a stable penalty that still discourages long waits
+        total_wait_penalty = 0
         current_vehicles = traci.vehicle.getIDList()
-        stagnation_penalty = 0
+        stagnation_count = 0
         
         for veh_id in current_vehicles:
             wait_time = traci.vehicle.getAccumulatedWaitingTime(veh_id)
-            total_squared_wait += (wait_time / 100.0) ** 2 # Scale to keep values manageable
+            total_wait_penalty += np.log2(1 + wait_time)
             
-            # 3. Stagnation Tracking
+            # 3. Stagnation Tracking (Improved criteria)
             speed = traci.vehicle.getSpeed(veh_id)
             if speed < 0.1:
                 self.veh_stagnation[veh_id] = self.veh_stagnation.get(veh_id, 0) + 1
-                if self.veh_stagnation[veh_id] > 20: # Over 20 simulation steps (~2 minutes)
-                    stagnation_penalty += 5.0
+                if self.veh_stagnation[veh_id] > 20: # Over 20 simulation steps (~1 minute)
+                    stagnation_count += 1
             else:
                 self.veh_stagnation[veh_id] = 0
         
@@ -355,19 +356,20 @@ class OxfordHydeParkEnv(gym.Env):
 
         throughput = self._get_throughput()
         
-        # Phase change penalty (slightly increased to prevent flickering)
+        # Phase change penalty (conservative)
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
-        # Final Reward Composition
+        # Combined Reward (Normalized to roughly -10.0 to +10.0 per step)
+        # 200 vehicles with 5 min wait = 200 * 8 = 1600. 1600 / 200 = 8.
         reward = (
-            -1.0 * pressure / 50.0 +           # Pressure (normalized)
-            -2.0 * total_squared_wait / 10.0 +  # Squared wait penalty
-            -1.0 * stagnation_penalty +        # Stagnation penalty
-            +10.0 * throughput +               # High incentive for clearing cars
-            phase_change_penalty * 0.2          # Smooth transitions
+            -0.5 * pressure / 20.0 +            # Pressure (-5 to 0 approx)
+            -1.0 * total_wait_penalty / 100.0 + # Wait penalty (-20 to 0 approx)
+            -2.0 * stagnation_count / 10.0 +    # Stagnation penalty
+            +5.0 * throughput +                 # Incentive for clearing cars
+            phase_change_penalty * 0.1
         )
         
-        return reward
+        return float(reward)
     
     def _get_total_wait_time(self):
         wait_time = 0
