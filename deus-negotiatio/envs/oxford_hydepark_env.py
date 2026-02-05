@@ -368,8 +368,10 @@ class OxfordHydeParkEnv(gym.Env):
             +5.0 * throughput +                 # Incentive for clearing cars
             phase_change_penalty * 0.1
         )
+        # Final Global Scaling to pull reward into stable range (~Hundreds per episode)
+        reward_scaled = reward * 0.01
         
-        return float(reward)
+        return float(reward_scaled)
     
     def _get_total_wait_time(self):
         wait_time = 0
