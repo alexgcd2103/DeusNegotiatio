@@ -1,8 +1,8 @@
-learning_rate: 0.0003
+learning_rate: 0.0006      # Doubled again to force escape from local minima
 gamma: 0.99
 tau: 0.005
-buffer_size: 200000        # Increased for complex observation space
-batch_size: 128            # Increased batch size for stable gradients
+buffer_size: 500000        # Larger memory for long-term pattern recognition
+batch_size: 256            # Larger batches for stable updates at high LR
 epsilon_start: 1.0
 epsilon_end: 0.05          # Higher minimum exploration
 epsilon_decay: 0.99998      # Much slower decay: ~50k steps to reach 0.05

@@ -131,6 +131,8 @@ class OxfordHydeParkEnv(gym.Env):
         self.sumo_running = False
         self.simulation_step = 0
         self.last_action = 0
+        self.last_phase = 0
+        self.action_counts = {0:0, 1:0, 2:0, 3:0}
         
     def reset(self, seed=None, options=None):
         """Reset simulation to initial state"""
@@ -171,6 +173,8 @@ class OxfordHydeParkEnv(gym.Env):
         self.weather = EnvironmentalEffects()
         self.veh_stagnation = {} # veh_id -> steps at speed < 0.1
         self.veh_tiq = {}        # veh_id -> accumulated wait time in current queue
+        self.action_counts = {0:0, 1:0, 2:0, 3:0}
+        self.last_phase = traci.trafficlight.getPhase(self.ts_id)
         
         return self._get_observation(), {}
     
@@ -178,13 +182,9 @@ class OxfordHydeParkEnv(gym.Env):
         """Execute action and return next state, reward, terminated, truncated, info"""
         
         # Apply action (set traffic light phase)
-        # Actions map to main green phases only
         target_phase = self._action_to_phase(action)
-        current_phase = traci.trafficlight.getPhase(self.ts_id)
-        
-        # Only change phase if different from current main phase
-        if target_phase != current_phase:
-            traci.trafficlight.setPhase(self.ts_id, target_phase)
+        self._set_phase(target_phase)
+        self.action_counts[action] += 1
         
         # Simulate for delta_time seconds
         for _ in range(self.delta_time):
@@ -206,7 +206,8 @@ class OxfordHydeParkEnv(gym.Env):
             'total_wait_time': self._get_total_wait_time(),
             'queue_length': self._get_total_queue_length(),
             'throughput': self._get_throughput(),
-            'vehicles_in_sim': len(traci.vehicle.getIDList())
+            'vehicles_in_sim': len(traci.vehicle.getIDList()),
+            'action_distribution': {a: c / max(1, sum(self.action_counts.values())) for a, c in self.action_counts.items()}
         }
         
         self.last_action = action
@@ -396,27 +397,57 @@ class OxfordHydeParkEnv(gym.Env):
         """
         Map discrete action to SUMO phase index.
         
-        Network phases:
-            0: NS Green (37s)
-            1: NS Yellow (3s)
-            2: All Red (1s)
-            3: EW Green (35s)
-            4: EW Yellow (3s)
-            5: All Red (1s)
-        
-        Actions control main green phases only:
-            0: NS Green (Phase 0)
-            1: Request EW (triggers yellow -> all-red -> EW green)
-            2: EW Green (Phase 3)
-            3: Request NS (triggers yellow -> all-red -> NS green)
+        Action Mapping (Oxford-Hyde Park):
+            0: NS Green Through (Phase 0)
+            1: NS Left Turn (Phase 2 if exists, or Phase 0)
+            2: EW Green Through (Phase 4)
+            3: All-Red/Wait (Pause logic)
         """
         action_phase_map = {
-            0: 0,   # NS Through Green (Phase 0 in net.xml)
-            1: 4,   # EW Through Green (Phase 4 in net.xml)
-            2: 4,   # EW Through Green (Phase 4 in net.xml)
-            3: 0,   # NS Through Green (Phase 0 in net.xml)
+            0: 0,   # NS Through
+            1: 0,   # NS Left (Fallback to 0 if no dedicated left phase)
+            2: 4,   # EW Through
+            3: 0,   # Stay NS Through
         }
         return action_phase_map.get(action, 0)
+
+    def _set_phase(self, target_phase):
+        """
+        Safety-first phase setter.
+        Triggers yellow/all-red transitions if changing between different Green phases.
+        """
+        current_phase = traci.trafficlight.getPhase(self.ts_id)
+        
+        if current_phase == target_phase:
+            # Maintain current phase
+            traci.trafficlight.setPhase(self.ts_id, target_phase)
+            return
+
+        # Transition Logic
+        # If switching NS -> EW (Phase 0 -> Phase 4)
+        if current_phase == 0 and target_phase == 4:
+            # Trigger NS-Yellow (Phase 1)
+            traci.trafficlight.setPhase(self.ts_id, 1)
+            # Run for yellow_time then all-red
+            for _ in range(self.yellow_time):
+                traci.simulationStep()
+            # Phase 2 is All Red in our config
+            traci.trafficlight.setPhase(self.ts_id, 2)
+            traci.simulationStep()
+        
+        # If switching EW -> NS (Phase 4 -> Phase 0)
+        elif current_phase == 4 and target_phase == 0:
+            # Trigger EW-Yellow (Phase 5)
+            traci.trafficlight.setPhase(self.ts_id, 5)
+            for _ in range(self.yellow_time):
+                traci.simulationStep()
+            # Phase 6? (Check net logic)
+            traci.trafficlight.setPhase(self.ts_id, 0)
+            traci.simulationStep()
+        
+        # Explicitly set the target
+        traci.trafficlight.setPhase(self.ts_id, target_phase)
+        self.last_phase = target_phase
 
     def close(self):
         if self.sumo_running:

@@ -69,7 +69,8 @@ class TrainingLoop:
             
             print(f"Episode {episode:3d} | Reward: {episode_reward:8.2f} | "
                   f"Avg(10): {avg_reward_10:8.2f} | Best: {best_reward:8.2f} | "
-                  f"Epsilon: {self.agent.epsilon:.4f} | Loss: {avg_loss:.4f}")
+                  f"Epsilon: {self.agent.epsilon:.4f} | Loss: {avg_loss:.4f} | "
+                  f"Actions: {info.get('action_distribution', {})}")
 
         # Save final model
         self.agent.save("final_model.pth")
