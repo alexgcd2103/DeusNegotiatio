@@ -251,7 +251,7 @@ class OxfordHydeParkEnv(gym.Env):
                 queue, avg_speed, occupancy = 0, 0, 0
             # Normalize
             state.extend([
-                queue / 50.0,           # Normalize queue (max ~50 vehicles)
+                queue / 100.0,          # Normalize queue (max ~100 vehicles in 4-lane stretch)
                 avg_speed / 16.67,      # Normalize speed (max 60 km/h = 16.67 m/s)
                 occupancy / 100.0       # Occupancy is 0-100%
             ])
@@ -373,9 +373,9 @@ class OxfordHydeParkEnv(gym.Env):
         reward = (
             -1.0 * pressure_penalty +           # Passive Queue Pressure
             -1.0 * total_wait_penalty / 50.0 +  # Wait penalty
-            -5.0 * stagnation_count / 10.0 +    # Stagnation penalty
-            +15.0 * throughput +                # Throughput bonus
-            +2.0 * (delta_wait / 10.0) +        # DELTA WAIT: Instant pulse for clearing cars
+            -10.0 * stagnation_count / 10.0 +   # Stagnation penalty (Harsher)
+            +40.0 * throughput +                # HERO METRIC: Throughput bonus (4x Boost)
+            +10.0 * (delta_wait / 10.0) +       # DELTA WAIT: Instant pulse for clearing cars (5x Boost)
             phase_change_penalty * 0.5
         )
         

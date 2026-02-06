@@ -1,12 +1,12 @@
 learning_rate: 0.001       # Balanced for stable convergence
-gamma: 0.99
+gamma: 0.98                # Slightly shorter horizon for faster credit synthesis
 tau: 0.005
 buffer_size: 500000        # Larger memory for long-term pattern recognition
 batch_size: 256            # Larger batches for stable updates
 epsilon_start: 1.0
 epsilon_end: 0.05          # Higher minimum exploration
-epsilon_decay: 0.96        # FASTER DECAY: Reach 0.1 by Episode 50 for policy transition
-target_update_interval: 5   # STABLE SYNC: Consensus learning every 5 episodes
+epsilon_decay: 0.94        # ACCELERATED DECAY: Reach 0.1 by Episode 35 for policy transition
+target_update_interval: 2   # FASTER FEEDBACK: Update target network every 2 episodes
 gradient_clipping: 1.0
 num_episodes: 200
 steps_per_episode: 720  # 3600 sim seconds / 5 second delta_time
