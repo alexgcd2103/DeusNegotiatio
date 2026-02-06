@@ -361,21 +361,20 @@ class OxfordHydeParkEnv(gym.Env):
         # Phase change penalty (conservative)
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
-        # Combined Reward (Calibrated for Professional Training Curve)
-        # Pressure polynomial targets roughly -3.5 per step at Episode 0
-        # Yielding ~-2500 total Reward per 720-step episode
+        # Combined Reward (Enhanced Contrast for Policy Emergence)
+        # We increase the weight of active throughput to make "good" decisions loud.
         pressure_penalty = 0.5 * ((pressure / 2.0) ** 1.2)
         
         reward = (
-            -1.0 * pressure_penalty +           # Calibrated Pressure
-            -1.0 * total_wait_penalty / 100.0 + # Wait penalty
-            -2.0 * stagnation_count / 10.0 +    # Stagnation penalty
-            +5.0 * throughput +                 # Incentive for clearing cars
-            phase_change_penalty * 0.1
+            -1.0 * pressure_penalty +           # Passive Queue Pressure
+            -1.0 * total_wait_penalty / 50.0 +  # Wait penalty (more sensitive)
+            -5.0 * stagnation_count / 10.0 +    # Stagnation penalty (Harsher)
+            +15.0 * throughput +                # Throughput bonus (Louder)
+            phase_change_penalty * 0.5          # Phase change (More distinctive)
         )
         
-        # Initial Loss Control: Scale reward to pull Episode 0 Reward toward -2500 precisely
-        return float(reward * 0.107)
+        # Scaling for -2500 target (Final Gold Calibration)
+        return float(reward * 0.074)
     
     def _get_total_wait_time(self):
         wait_time = 0
