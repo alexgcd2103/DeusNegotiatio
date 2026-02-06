@@ -361,10 +361,12 @@ class OxfordHydeParkEnv(gym.Env):
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
         # Combined Reward (Normalized to roughly -10.0 to +10.0 per step)
-        # 200 vehicles with 5 min wait = 200 * 8 = 1600. 1600 / 200 = 8.
+        # Pressure is now non-linear (sgn(p) * |p|^1.5) to amplify high-congestion states
+        pressure_penalty = np.sign(pressure) * (np.abs(pressure) ** 1.5)
+        
         reward = (
-            -0.5 * pressure / 20.0 +            # Pressure (-5 to 0 approx)
-            -1.0 * total_wait_penalty / 100.0 + # Wait penalty (-20 to 0 approx)
+            -0.5 * pressure_penalty / 20.0 +    # Non-linear Pressure
+            -1.0 * total_wait_penalty / 100.0 + # Wait penalty
             -2.0 * stagnation_count / 10.0 +    # Stagnation penalty
             +5.0 * throughput +                 # Incentive for clearing cars
             phase_change_penalty * 0.1
