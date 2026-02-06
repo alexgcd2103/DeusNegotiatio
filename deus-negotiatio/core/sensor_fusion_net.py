@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from core.noisy_linear import NoisyLinear
 
 class SensorFusionDQN(nn.Module):
     """
@@ -77,14 +76,14 @@ class SensorFusionDQN(nn.Module):
         self.value_stream = nn.Sequential(
             nn.Linear(256, 128),
             nn.LeakyReLU(),
-            NoisyLinear(128, 1)
+            nn.Linear(128, 1)
         )
         
         # Advantage Stream (A)
         self.advantage_stream = nn.Sequential(
             nn.Linear(256, 128),
             nn.LeakyReLU(),
-            NoisyLinear(128, action_dim)
+            nn.Linear(128, action_dim)
         )
         
         self._init_weights()
@@ -146,9 +145,3 @@ class SensorFusionDQN(nn.Module):
         q_val = val + (adv - adv.mean(dim=1, keepdim=True))
         
         return q_val
-
-    def reset_noise(self):
-        """Resets the noise in all NoisyLinear layers."""
-        for m in self.modules():
-            if isinstance(m, NoisyLinear):
-                m.reset_noise()

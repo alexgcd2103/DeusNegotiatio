@@ -1,12 +1,12 @@
-learning_rate: 0.0008      # Stabilized for complex sensor-fusion and consistent growth
+learning_rate: 0.0005      # Gradual optimization for smooth loss curve
 gamma: 0.99
 tau: 0.005
 buffer_size: 500000        # Larger memory for long-term pattern recognition
-batch_size: 256            # Larger batches for stable updates at high LR
+batch_size: 256            # Larger batches for stable updates
 epsilon_start: 1.0
 epsilon_end: 0.05          # Higher minimum exploration
-epsilon_decay: 0.99998      # Much slower decay: ~50k steps to reach 0.05
-target_update_interval: 5   # Updated more frequently to track moving targets
+epsilon_decay: 0.97        # Per-episode decay: reaches ~0.05 at episode 100
+target_update_interval: 1   # Sync every episode for matching the decay/sync logic
 gradient_clipping: 1.0
 num_episodes: 200
 steps_per_episode: 720  # 3600 sim seconds / 5 second delta_time

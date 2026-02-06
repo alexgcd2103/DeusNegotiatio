@@ -59,9 +59,10 @@ class TrainingLoop:
                 best_reward = episode_reward
                 self.agent.save("best_model.pth")
             
-            # 5. Sync Target Network periodically
-            if episode % self.config.get('target_update_interval', 10) == 0:
+            # 5. Sync Target Network and Decay Epsilon
+            if episode % self.config.get('target_update_interval', 1) == 0: # Update every episode for stability
                 self.agent.sync_target_network()
+                self.agent.decay_epsilon()
             
             # Calculate metrics
             avg_loss = sum(episode_losses) / len(episode_losses) if episode_losses else 0
