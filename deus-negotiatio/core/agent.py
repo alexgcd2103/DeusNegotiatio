@@ -49,13 +49,10 @@ class DeusNegotiatioAgent:
                                     lr=config.get('learning_rate', 1e-4),
                                     weight_decay=0.01)
         
-        # Memory
-        self.memory = PrioritizedReplayBuffer(config.get('buffer_size', 100000))
-        
         # Hyperparameters
-        self.epsilon = config.get('epsilon_start', 1.0)
-        self.epsilon_end = config.get('epsilon_end', 0.01)
-        self.epsilon_decay = config.get('epsilon_decay', 0.9995)
+        self.epsilon = 0.0 # Disabled for Noisy Nets
+        self.memory = PrioritizedReplayBuffer(config.get('buffer_size', 100000), alpha=0.7)
+        self.beta = 0.5 # Starting beta for PER
         self.batch_size = config.get('batch_size', 64)
         self.gamma = config.get('gamma', 0.99)
         self.steps = 0
@@ -70,7 +67,6 @@ class DeusNegotiatioAgent:
         if random.random() < self.epsilon:
             if valid_actions:
                 return random.choice(valid_actions)
-            # Assuming action dim is output dim of network
             return random.randint(0, self.policy_net.output_dim - 1)
         
         with torch.no_grad():
@@ -92,7 +88,9 @@ class DeusNegotiatioAgent:
         if len(self.memory) < self.batch_size:
             return None
         
-        transitions, indices, weights = self.memory.sample(self.batch_size)
+        # Linear Beta annealing from 0.5 to 1.0
+        self.beta = min(1.0, self.beta + 0.0001)
+        transitions, indices, weights = self.memory.sample(self.batch_size, beta=self.beta)
         
         # Unpack batch
         batch = list(zip(*transitions))
@@ -131,8 +129,10 @@ class DeusNegotiatioAgent:
         new_priorities = np.abs(td_errors) + 1e-5
         self.memory.update_priorities(indices, new_priorities.flatten())
         
-        # Decay epsilon
-        self.epsilon = max(self.epsilon_end, self.epsilon * self.epsilon_decay)
+        # Reset Noise for next step exploration
+        if hasattr(self.policy_net, 'reset_noise'):
+            self.policy_net.reset_noise()
+            self.target_net.reset_noise()
         
         return loss.item()
 

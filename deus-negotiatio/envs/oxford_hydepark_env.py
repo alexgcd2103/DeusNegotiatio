@@ -362,11 +362,12 @@ class OxfordHydeParkEnv(gym.Env):
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
         # Combined Reward (Normalized to roughly -10.0 to +10.0 per step)
-        # Pressure is now non-linear (sgn(p) * p^2) to amplify high-congestion states
-        pressure_penalty = np.sign(pressure) * (pressure ** 2)
+        # Pressure is now exponential to create massive gradients for high-congestion states
+        # exp(p/10) - 1 gives 0 at p=0, ~1.7 at p=10, ~6.4 at p=20, ~21 at p=30.
+        exponential_penalty = np.exp(pressure / 10.0) - 1.0
         
         reward = (
-            -0.5 * pressure_penalty / 100.0 +   # Normalized Pressure Penalty
+            -1.0 * exponential_penalty +        # High-drama exponential pressure
             -1.0 * total_wait_penalty / 100.0 + # Wait penalty
             -2.0 * stagnation_count / 10.0 +    # Stagnation penalty
             +5.0 * throughput +                 # Incentive for clearing cars
