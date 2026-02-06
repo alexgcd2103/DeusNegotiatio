@@ -127,6 +127,7 @@ class OxfordHydeParkEnv(gym.Env):
         # 4 actions for main phase control
         # (yellows and all-reds are handled automatically by SUMO)
         self.action_space = spaces.Discrete(4)
+        self.last_total_wait = 0.0
         
         self.sumo_running = False
         self.simulation_step = 0
@@ -174,7 +175,7 @@ class OxfordHydeParkEnv(gym.Env):
         self.veh_stagnation = {} # veh_id -> steps at speed < 0.1
         self.veh_tiq = {}        # veh_id -> accumulated wait time in current queue
         self.action_counts = {0:0, 1:0, 2:0, 3:0}
-        self.last_phase = traci.trafficlight.getPhase(self.ts_id)
+        self.last_total_wait = self._get_total_wait_time()
         
         return self._get_observation(), {}
     
@@ -362,19 +363,25 @@ class OxfordHydeParkEnv(gym.Env):
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
         # Combined Reward (Enhanced Contrast for Policy Emergence)
-        # We increase the weight of active throughput to make "good" decisions loud.
         pressure_penalty = 0.5 * ((pressure / 2.0) ** 1.2)
+        
+        # 4. Success Signal: Delta Waiting Time (Instant Credit Assignment)
+        current_total_wait = self._get_total_wait_time()
+        delta_wait = self.last_total_wait - current_total_wait
+        self.last_total_wait = current_total_wait
         
         reward = (
             -1.0 * pressure_penalty +           # Passive Queue Pressure
-            -1.0 * total_wait_penalty / 50.0 +  # Wait penalty (more sensitive)
-            -5.0 * stagnation_count / 10.0 +    # Stagnation penalty (Harsher)
-            +15.0 * throughput +                # Throughput bonus (Louder)
-            phase_change_penalty * 0.5          # Phase change (More distinctive)
+            -1.0 * total_wait_penalty / 50.0 +  # Wait penalty
+            -5.0 * stagnation_count / 10.0 +    # Stagnation penalty
+            +15.0 * throughput +                # Throughput bonus
+            +2.0 * (delta_wait / 10.0) +        # DELTA WAIT: Instant pulse for clearing cars
+            phase_change_penalty * 0.5
         )
         
         # Scaling for -2500 target (Final Gold Calibration)
-        return float(reward * 0.074)
+        # Slightly adjusted to account for delta_wait noise
+        return float(reward * 0.072)
     
     def _get_total_wait_time(self):
         wait_time = 0
