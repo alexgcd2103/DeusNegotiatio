@@ -15,6 +15,7 @@ class TrainingLoop:
         self.config = config
         self.episodes = config.get('num_episodes', 100)
         self.steps_per_episode = config.get('steps_per_episode', 1000)
+        self.total_steps = 0
         
     def run(self):
         print(f"Starting training on device: {self.agent.device}")
@@ -44,6 +45,12 @@ class TrainingLoop:
                 if loss is not None:
                     episode_losses.append(loss)
                 
+                # Steel Guard: Step-Based Target Sync
+                self.total_steps += 1
+                if self.total_steps % self.config.get('target_update_interval', 1000) == 0:
+                    self.agent.sync_target_network()
+                    print(f"  Target Network Synced at step {self.total_steps}")
+                
                 state = next_state
                 episode_reward += reward
                 
@@ -59,11 +66,7 @@ class TrainingLoop:
                 best_reward = episode_reward
                 self.agent.save("best_model.pth")
             
-            # 5. Sync Target Network and Decay Epsilon
-            if episode % self.config.get('target_update_interval', 5) == 0:
-                self.agent.sync_target_network()
-            
-            # Decay Epsilon Every Episode
+            # 5. Decay Epsilon Every Episode
             self.agent.decay_epsilon()
             
             # Calculate metrics

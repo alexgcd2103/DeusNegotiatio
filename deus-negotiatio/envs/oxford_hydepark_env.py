@@ -370,18 +370,21 @@ class OxfordHydeParkEnv(gym.Env):
         delta_wait = self.last_total_wait - current_total_wait
         self.last_total_wait = current_total_wait
         
+        # Damping: Cap delta_wait to prevent reward explosions during gridlock
+        delta_wait_clipped = np.clip(delta_wait / 10.0, -5.0, 5.0)
+        
         reward = (
             -1.0 * pressure_penalty +           # Passive Queue Pressure
             -1.0 * total_wait_penalty / 50.0 +  # Wait penalty
-            -10.0 * stagnation_count / 10.0 +   # Stagnation penalty (Harsher)
-            +40.0 * throughput +                # HERO METRIC: Throughput bonus (4x Boost)
-            +10.0 * (delta_wait / 10.0) +       # DELTA WAIT: Instant pulse for clearing cars (5x Boost)
-            phase_change_penalty * 0.5
+            -10.0 * min(stagnation_count, 10) / 10.0 + # Damped Stagnation (Cap at 10)
+            +20.0 * throughput +                # Balanced Throughput
+            +10.0 * delta_wait_clipped +        # Damped Delta-Wait
+            phase_change_penalty * 2.0          # Increased penalty to prevent flickering
         )
         
-        # Scaling for -2500 target (Final Gold Calibration)
-        # Slightly adjusted to account for delta_wait noise
-        return float(reward * 0.072)
+        # Steel Guard: Hard Clip per-step reward to prevent gradient explosion
+        # Calibration ensures Episode 0 total remains ~ -2000
+        return float(np.clip(reward * 0.072, -10.0, 2.0))
     
     def _get_total_wait_time(self):
         wait_time = 0

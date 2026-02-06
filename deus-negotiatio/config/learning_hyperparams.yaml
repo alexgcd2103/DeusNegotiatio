@@ -1,19 +1,19 @@
-learning_rate: 0.001       # Balanced for stable convergence
-gamma: 0.98                # Slightly shorter horizon for faster credit synthesis
+learning_rate: 5.0e-5      # MPS Stable: Prevent gradient explosion in 172-D space
+gamma: 0.99                # Steel Guard: Long-term planning
 tau: 0.005
-buffer_size: 500000        # Larger memory for long-term pattern recognition
-batch_size: 256            # Larger batches for stable updates
+buffer_size: 200000        # Steel Guard: Preserve 5x more success data
+batch_size: 256            # Stable updates
 epsilon_start: 1.0
-epsilon_end: 0.05          # Higher minimum exploration
-epsilon_decay: 0.94        # ACCELERATED DECAY: Reach 0.1 by Episode 35 for policy transition
-target_update_interval: 2   # FASTER FEEDBACK: Update target network every 2 episodes
+epsilon_end: 0.05          # Baseline exploration
+epsilon_decay: 0.985       # Gradual: Matches the 100-episode mastery goal
+target_update_interval: 1000 # Consensus: Sync every 1000 STEPS (User Stabilizer)
 gradient_clipping: 1.0
 num_episodes: 200
 steps_per_episode: 720  # 3600 sim seconds / 5 second delta_time
 
 network:
   hidden_dims: [256, 128]
-  dropout: 0.2
+  dropout: 0.1             # Lower dropout for stable refinement
   dueling: true
 
 multi_agent:
