@@ -1,4 +1,4 @@
-learning_rate: 0.002      # 5x boost to break conservative prediction cycle
+learning_rate: 0.0008      # Stabilized for complex sensor-fusion and consistent growth
 gamma: 0.99
 tau: 0.005
 buffer_size: 500000        # Larger memory for long-term pattern recognition

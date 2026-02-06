@@ -183,11 +183,12 @@ class OxfordHydeParkEnv(gym.Env):
         
         # Apply action (set traffic light phase)
         target_phase = self._action_to_phase(action)
-        self._set_phase(target_phase)
+        transition_steps = self._set_phase(target_phase)
         self.action_counts[action] += 1
         
-        # Simulate for delta_time seconds
-        for _ in range(self.delta_time):
+        # Simulate for remaining delta_time seconds to ensure exact 5s decision intervals
+        remaining_steps = max(0, self.delta_time - transition_steps)
+        for _ in range(remaining_steps):
             traci.simulationStep()
             self.simulation_step += 1
             self.weather.step()
@@ -361,11 +362,11 @@ class OxfordHydeParkEnv(gym.Env):
         phase_change_penalty = -1.0 if action != self.last_action else 0.0
         
         # Combined Reward (Normalized to roughly -10.0 to +10.0 per step)
-        # Pressure is now non-linear (sgn(p) * |p|^1.5) to amplify high-congestion states
-        pressure_penalty = np.sign(pressure) * (np.abs(pressure) ** 1.5)
+        # Pressure is now non-linear (sgn(p) * p^2) to amplify high-congestion states
+        pressure_penalty = np.sign(pressure) * (pressure ** 2)
         
         reward = (
-            -0.5 * pressure_penalty / 20.0 +    # Non-linear Pressure
+            -0.5 * pressure_penalty / 100.0 +   # Normalized Pressure Penalty
             -1.0 * total_wait_penalty / 100.0 + # Wait penalty
             -2.0 * stagnation_count / 10.0 +    # Stagnation penalty
             +5.0 * throughput +                 # Incentive for clearing cars
@@ -402,15 +403,15 @@ class OxfordHydeParkEnv(gym.Env):
         
         Action Mapping (Oxford-Hyde Park):
             0: NS Green Through (Phase 0)
-            1: NS Left Turn (Phase 2 if exists, or Phase 0)
+            1: NS Left Turn (Phase 2)
             2: EW Green Through (Phase 4)
-            3: All-Red/Wait (Pause logic)
+            3: All-Red/Wait Default (Keep current or safer phase)
         """
         action_phase_map = {
             0: 0,   # NS Through
-            1: 0,   # NS Left (Fallback to 0 if no dedicated left phase)
+            1: 2,   # NS Left
             2: 4,   # EW Through
-            3: 0,   # Stay NS Through
+            3: 0,   # Stay NS Through (Safest default)
         }
         return action_phase_map.get(action, 0)
 
@@ -418,39 +419,32 @@ class OxfordHydeParkEnv(gym.Env):
         """
         Safety-first phase setter.
         Triggers yellow/all-red transitions if changing between different Green phases.
+        Returns the number of simulation steps spent in transitions.
         """
         current_phase = traci.trafficlight.getPhase(self.ts_id)
         
         if current_phase == target_phase:
-            # Maintain current phase
             traci.trafficlight.setPhase(self.ts_id, target_phase)
-            return
+            return 0
 
-        # Transition Logic
-        # If switching NS -> EW (Phase 0 -> Phase 4)
-        if current_phase == 0 and target_phase == 4:
-            # Trigger NS-Yellow (Phase 1)
-            traci.trafficlight.setPhase(self.ts_id, 1)
-            # Run for yellow_time then all-red
-            for _ in range(self.yellow_time):
-                traci.simulationStep()
-            # Phase 2 is All Red in our config
-            traci.trafficlight.setPhase(self.ts_id, 2)
-            traci.simulationStep()
+        # Determine intermediate yellow phase
+        # Network logic: 0(G)->1(y)->2(G)->3(y)->4(G)->5(y)->0
+        yellow_phase = current_phase + 1
+        if yellow_phase > 5: yellow_phase = 0
         
-        # If switching EW -> NS (Phase 4 -> Phase 0)
-        elif current_phase == 4 and target_phase == 0:
-            # Trigger EW-Yellow (Phase 5)
-            traci.trafficlight.setPhase(self.ts_id, 5)
-            for _ in range(self.yellow_time):
-                traci.simulationStep()
-            # Phase 6? (Check net logic)
-            traci.trafficlight.setPhase(self.ts_id, 0)
-            traci.simulationStep()
+        traci.trafficlight.setPhase(self.ts_id, yellow_phase)
         
-        # Explicitly set the target
+        steps_spent = 0
+        for _ in range(self.yellow_time):
+            traci.simulationStep()
+            self.simulation_step += 1
+            self.weather.step()
+            steps_spent += 1
+        
+        # Set target phase
         traci.trafficlight.setPhase(self.ts_id, target_phase)
         self.last_phase = target_phase
+        return steps_spent
 
     def close(self):
         if self.sumo_running:
