@@ -370,7 +370,8 @@ class OxfordHydeParkEnv(gym.Env):
             phase_change_penalty * 0.1
         )
         # Final Global Scaling to pull reward into stable range (~Hundreds per episode)
-        reward_scaled = reward * 0.01
+        # Increased to 0.05 from 0.01 to provide sharper gradient for pattern synthesis
+        reward_scaled = reward * 0.05
         
         return float(reward_scaled)
     

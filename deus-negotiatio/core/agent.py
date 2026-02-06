@@ -45,7 +45,9 @@ class DeusNegotiatioAgent:
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=config.get('learning_rate', 1e-4))
+        self.optimizer = optim.AdamW(self.policy_net.parameters(), 
+                                    lr=config.get('learning_rate', 1e-4),
+                                    weight_decay=0.01)
         
         # Memory
         self.memory = PrioritizedReplayBuffer(config.get('buffer_size', 100000))
@@ -112,8 +114,8 @@ class DeusNegotiatioAgent:
             next_q = self.target_net(next_state_batch).gather(1, next_actions)
             target_q = reward_batch + (1 - done_batch) * self.gamma * next_q
         
-        # Loss
-        loss = (current_q - target_q).pow(2) * weights_t
+        # Loss: Huber Loss (Smooth L1) for robust synthesis
+        loss = torch.nn.functional.smooth_l1_loss(current_q, target_q, reduction='none') * weights_t
         loss = loss.mean()
         
         self.optimizer.zero_grad()

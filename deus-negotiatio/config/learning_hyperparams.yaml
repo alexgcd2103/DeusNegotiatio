@@ -1,4 +1,4 @@
-learning_rate: 0.0006      # Doubled again to force escape from local minima
+learning_rate: 0.0004      # Refined for Huber Loss stability and synthesis
 gamma: 0.99
 tau: 0.005
 buffer_size: 500000        # Larger memory for long-term pattern recognition
