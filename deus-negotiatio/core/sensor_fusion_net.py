@@ -86,6 +86,15 @@ class SensorFusionDQN(nn.Module):
             nn.Linear(128, action_dim)
         )
         
+        self._init_weights()
+        
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform_(m.weight, nonlinearity='leaky_relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0.01)
+        
     def forward(self, state):
         batch_size = state.size(0)
         

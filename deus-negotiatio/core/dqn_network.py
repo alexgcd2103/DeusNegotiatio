@@ -14,9 +14,7 @@ class DuelingDQN(nn.Module):
         self.input_dim = input_dim
         self.output_dim = output_dim
         
-        # Feature Extraction Layer (Common)
-        # Using simple Dense layers here, but Architecture doc mentions CNN if raw spatial data used.
-        # Since StateEncoder outputs a vector, we stick to MLP for now.
+        # ... Feature layer, streams ...
         layers = []
         in_size = input_dim
         for h_dim in hidden_dims:
@@ -27,19 +25,26 @@ class DuelingDQN(nn.Module):
             
         self.feature_layer = nn.Sequential(*layers)
         
-        # Value Stream
         self.value_stream = nn.Sequential(
             nn.Linear(in_size, 128),
             nn.ReLU(),
             nn.Linear(128, 1)
         )
         
-        # Advantage Stream
         self.advantage_stream = nn.Sequential(
             nn.Linear(in_size, 128),
             nn.ReLU(),
             nn.Linear(128, output_dim)
         )
+        
+        self._init_weights()
+        
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform_(m.weight, nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0.01)
         
     def forward(self, x):
         features = self.feature_layer(x)
