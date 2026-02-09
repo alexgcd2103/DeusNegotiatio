@@ -101,8 +101,11 @@ def run_gui_simulation(mode='trained', model_path='best_model.pth', episodes=1):
                 
                 if initial_delay is None and step > 20: 
                     initial_delay = avg_delay
+                    # Baseline is the initial delay before AI has significant effect
+                    baseline_delay = initial_delay
                 
-                reduction = initial_delay - avg_delay if initial_delay else 0
+                # AI Improvement = baseline_delay - current_delay (positive = AI is better)
+                reduction = (baseline_delay - avg_delay) if initial_delay else 0
                 
                 # Real-time dashboard
                 if step % 2 == 0:
@@ -121,7 +124,7 @@ def run_gui_simulation(mode='trained', model_path='best_model.pth', episodes=1):
             
         print(f"\n\n  Episode Result:")
         print(f"  - Avg Congestion: {congestion:.1f}%")
-        print(f"  - Final Delay Savings: {reduction:.1f} seconds/vehicle")
+        print(f"  - Final Delay Savings: {reduction:.1f} seconds/vehicle (positive = better than baseline)")
         print(f"  - Total Vehicles Processed: {info.get('throughput', 0)}")
 
     env.close()

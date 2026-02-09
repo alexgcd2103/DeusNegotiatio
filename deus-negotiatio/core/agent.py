@@ -121,8 +121,8 @@ class DeusNegotiatioAgent:
         self.optimizer.zero_grad()
         loss.backward()
         
-        # Gradient clipping
-        torch.nn.utils.clip_grad_norm_(self.policy_net.parameters(), 1.0)
+        # Gradient clipping (increased for stability with delay-aligned rewards)
+        torch.nn.utils.clip_grad_norm_(self.policy_net.parameters(), 5.0)
         
         self.optimizer.step()
         

@@ -176,6 +176,9 @@ class OxfordHydeParkEnv(gym.Env):
         self.veh_tiq = {}        # veh_id -> accumulated wait time in current queue
         self.action_counts = {0:0, 1:0, 2:0, 3:0}
         self.last_total_wait = self._get_total_wait_time()
+        self.total_vehicles_processed = 0  # Cumulative departures this episode
+        self.last_queue = 0  # For queue-drain bonus
+        self.gridlock_steps = 0  # For early termination
         
         return self._get_observation(), {}
     
@@ -373,18 +376,42 @@ class OxfordHydeParkEnv(gym.Env):
         # Damping: Cap delta_wait to prevent reward explosions during gridlock
         delta_wait_clipped = np.clip(delta_wait / 10.0, -5.0, 5.0)
         
-        reward = (
-            -1.0 * pressure_penalty +           # Passive Queue Pressure
-            -1.0 * total_wait_penalty / 50.0 +  # Wait penalty
-            -10.0 * min(stagnation_count, 10) / 10.0 + # Damped Stagnation (Cap at 10)
-            +20.0 * throughput +                # Balanced Throughput
-            +10.0 * delta_wait_clipped +        # Damped Delta-Wait
-            phase_change_penalty * 2.0          # Increased penalty to prevent flickering
-        )
+        # DIRECT QUEUE+DELAY PENALTY (as specified by user)
+        # r_t = -(α * total_queue + β * total_delay)
+        total_queue = self._get_total_queue_length()
+        total_delay = current_total_wait
         
-        # Steel Guard: Hard Clip per-step reward to prevent gradient explosion
-        # Calibration ensures Episode 0 total remains ~ -2000
-        return float(np.clip(reward * 0.072, -10.0, 2.0))
+        # α = 0.1 per queued vehicle, β = 0.01 per second of delay
+        queue_penalty = -0.1 * total_queue
+        delay_penalty = -0.01 * total_delay
+        
+        # Small phase-switching penalty to discourage rapid flapping
+        phase_penalty = -0.5 if phase_change_penalty < 0 else 0
+        
+        # Queue-drain bonus: reward for reducing queues
+        queue_delta = self.last_queue - total_queue
+        self.last_queue = total_queue
+        drain_bonus = max(0, queue_delta) * 0.2  # +0.2 per vehicle cleared from queue
+        
+        # Basic reward
+        reward = queue_penalty + delay_penalty + phase_penalty + drain_bonus
+        
+        # GRIDLOCK DETECTION: Early termination prevention
+        vehicles_in_network = len(traci.vehicle.getIDList())
+        if vehicles_in_network > 0:
+            avg_delay = total_delay / vehicles_in_network
+            if avg_delay > 60:  # Avg delay > 60s threshold
+                self.gridlock_steps += 1
+                if self.gridlock_steps >= 24:  # 120s of gridlock (24 steps * 5s)
+                    reward -= 100  # Large negative reward for sustained gridlock
+            else:
+                self.gridlock_steps = 0  # Reset counter
+        
+        # Clip to prevent extremes
+        return float(np.clip(reward, -50.0, 10.0))
+
+
+
     
     def _get_total_wait_time(self):
         wait_time = 0
@@ -402,8 +429,10 @@ class OxfordHydeParkEnv(gym.Env):
         return queue
     
     def _get_throughput(self):
-        # Vehicles that arrived at their destination
-        return traci.simulation.getArrivedNumber()
+        # Vehicles that arrived at their destination THIS STEP (accumulate in step())
+        step_arrivals = traci.simulation.getArrivedNumber()
+        self.total_vehicles_processed += step_arrivals
+        return self.total_vehicles_processed  # Return cumulative
     
     def _action_to_phase(self, action):
         """

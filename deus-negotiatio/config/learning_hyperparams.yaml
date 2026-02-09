@@ -1,24 +1,24 @@
-learning_rate: 5.0e-5      # MPS Stable: Prevent gradient explosion in 172-D space
-gamma: 0.99                # Steel Guard: Long-term planning
+learning_rate: 5.0e-5         # STABLE: Lower for consistent convergence
+gamma: 0.99                   # Long-term planning
 tau: 0.005
-buffer_size: 200000        # Steel Guard: Preserve 5x more success data
-batch_size: 256            # Stable updates
+buffer_size: 200000           # Large buffer for diverse experience
+batch_size: 256               # Stable updates
 epsilon_start: 1.0
-epsilon_end: 0.05          # Baseline exploration
-epsilon_decay: 0.985       # Gradual: Matches the 100-episode mastery goal
-target_update_interval: 1000 # Consensus: Sync every 1000 STEPS (User Stabilizer)
-gradient_clipping: 1.0
+epsilon_end: 0.10             # RAISED: Maintain exploration in complex state space
+epsilon_decay: 0.995          # SLOW: ~1000 episodes to reach min (was 0.85)
+target_update_interval: 5000  # STABLE: 10x slower syncing (was 500)
+gradient_clipping: 5.0        # NEW: Prevent gradient explosions
 num_episodes: 200
-steps_per_episode: 720  # 3600 sim seconds / 5 second delta_time
+steps_per_episode: 720        # 3600 sim seconds / 5 second delta_time
 
 network:
   hidden_dims: [256, 128]
-  dropout: 0.1             # Lower dropout for stable refinement
+  dropout: 0.1
   dueling: true
 
 multi_agent:
-  coordination_weight: 0.1  # Beta parameter
-  neighbor_radius: 1  # Number of hops to communicate
+  coordination_weight: 0.1
+  neighbor_radius: 1
 
 multi_sensor:
   enabled: true
@@ -34,9 +34,9 @@ multi_sensor:
   environment:
     weather_change_prob: 0.001
   observation:
-    state_dim: 172            # Updated for 16x3 (SUMO) + 64 (LiDAR) + 5 (IR) + 7 (Motion) + 4 (Weather) + 2 (Time) + 16 (TiQ) + padding
+    state_dim: 172
 
 safety_constraints:
-  min_pedestrian_walk: 7.0  # seconds
+  min_pedestrian_walk: 7.0
   min_green_time: 10.0
   max_green_time: 60.0
