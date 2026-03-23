@@ -9,6 +9,13 @@
            maxSpeed="11.11" color="0.8,0.4,0.1" guiShape="truck"/>
     <vType id="bus" accel="1.0" decel="3.0" sigma="0.3" length="15.0" minGap="3.0" 
            maxSpeed="11.11" color="1.0,0.8,0.0" guiShape="bus"/>
+    <vType id="LTC_Bus" accel="1.2" decel="3.5" sigma="0.2" length="12.0" minGap="3.0" 
+           maxSpeed="13.89" color="0.0,0.8,0.2" guiShape="bus" vClass="bus"/> <!-- London Transit Bus -->
+    
+    <vType id="emergency" vClass="emergency" guiShape="emergency" color="red" accel="3.5" decel="5.0" sigma="0.2" length="6.5" minGap="2.5" maxSpeed="25.0">
+        <param key="has.bluelight.device" value="true"/>
+        <param key="device.bluelight.explicit" value="1"/>
+    </vType>
 
     <!-- 
     REDESIGNED ROUTES (LOS C Modified 2046) 
@@ -60,5 +67,12 @@
     <flow id="WB_t1_f" route="WB_t" type="passenger" begin="0" end="3600" vehsPerHour="1000" departLane="0"/>
     <flow id="WB_t2_f" route="WB_t" type="passenger" begin="0" end="3600" vehsPerHour="1000" departLane="1"/>
     <flow id="WB_l_f" route="WB_l" type="passenger" begin="0" end="3600" vehsPerHour="346" departLane="1"/>
+
+    <!-- Single LTC Transit Bus for testing priority -->
+    <vehicle id="LTC_Single" route="EB_t" type="LTC_Bus" depart="150" departLane="best"/>
+
+    <!-- Single Emergency Vehicle for testing preemption -->
+    <vehicle id="EV_Single" route="SB_t" type="emergency" depart="300" departLane="best"/>
+
 
 </routes>

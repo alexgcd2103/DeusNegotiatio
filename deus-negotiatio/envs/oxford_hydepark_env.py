@@ -162,6 +162,8 @@ class OxfordHydeParkEnv(gym.Env):
             '--time-to-teleport', '-1',
             '--waiting-time-memory', '1000',
             '--max-depart-delay', '0',
+            '--lateral-resolution', '0.8',
+            '--device.bluelight.reactiondist', '100',
             '--start'
         ] + self.extra_sumo_args
         
@@ -185,9 +187,22 @@ class OxfordHydeParkEnv(gym.Env):
     def step(self, action):
         """Execute action and return next state, reward, terminated, truncated, info"""
         
-        # Apply action (set traffic light phase)
-        target_phase = self._action_to_phase(action)
-        transition_steps = self._set_phase(target_phase)
+        # 0. Priority Override Checks
+        preempt_phase = self._check_emergency_preemption()
+        transit_phase = self._check_transit_priority()
+        
+        if preempt_phase is not None:
+            target_phase = preempt_phase
+            is_preempted = True
+        elif transit_phase is not None:
+            target_phase = transit_phase
+            is_preempted = False # Normal yellow transitions, but forces the phase
+        else:
+            # Apply RL action (set traffic light phase)
+            target_phase = self._action_to_phase(action)
+            is_preempted = False
+            
+        transition_steps = self._set_phase(target_phase, fast=is_preempted)
         self.action_counts[action] += 1
         
         # Simulate for remaining delta_time seconds to ensure exact 5s decision intervals
@@ -212,7 +227,8 @@ class OxfordHydeParkEnv(gym.Env):
             'queue_length': self._get_total_queue_length(),
             'throughput': self._get_throughput(),
             'vehicles_in_sim': len(traci.vehicle.getIDList()),
-            'action_distribution': {a: c / max(1, sum(self.action_counts.values())) for a, c in self.action_counts.items()}
+            'action_distribution': {a: c / max(1, sum(self.action_counts.values())) for a, c in self.action_counts.items()},
+            'emergency_preemption': is_preempted
         }
         
         self.last_action = action
@@ -234,15 +250,14 @@ class OxfordHydeParkEnv(gym.Env):
                 'speed': traci.vehicle.getSpeed(veh_id),
                 'acceleration': traci.vehicle.getAcceleration(veh_id),
                 'angle': np.radians(traci.vehicle.getAngle(veh_id)),
-                'length': traci.vehicle.getLength(veh_id)
+                'length': traci.vehicle.getLength(veh_id),
+                'type': traci.vehicle.getTypeID(veh_id)
             })
             
-        # Center coordinates around (0,0) intersection
-        # The network is centered at (0,0) so just use raw coordinates
-        # but clamp to sensor range
+        # Center coordinates around the junction C (500, 500)
         for v in all_vehicles:
-            v['x'] = np.clip(v['x'], -100, 100)
-            v['y'] = np.clip(v['y'], -100, 100)
+            v['x'] = np.clip(v['x'] - 500.0, -100, 100)
+            v['y'] = np.clip(v['y'] - 500.0, -100, 100)
         
         # --- 1. Base SUMO Features (42 = 14 lanes × 3 features) ---
         for lane in self.lanes:
@@ -306,6 +321,20 @@ class OxfordHydeParkEnv(gym.Env):
         for lane in self.lanes:
             avg_tiq = np.mean(lane_tiqs[lane]) if lane_tiqs[lane] else 0.0
             state.append(avg_tiq / 300.0) # Normalize to 5 minutes
+        
+        # --- 9. Transit Priority Detection (4) ---
+        # Detect LTC buses approaching from each direction (within 100m)
+        ltc_bits = [0.0] * 4 # NB, SB, EB, WB
+        for v in all_vehicles:
+            if v['type'] == 'LTC_Bus':
+                dist = np.sqrt(v['x']**2 + v['y']**2)
+                if dist < 100.0:
+                    road = traci.vehicle.getRoadID(v['id'])
+                    if 'NB_in' in road or 'NB_feed' in road: ltc_bits[0] = 1.0
+                    elif 'SB_in' in road or 'SB_feed' in road: ltc_bits[1] = 1.0
+                    elif 'EB_in' in road or 'EB_feed' in road: ltc_bits[2] = 1.0
+                    elif 'WB_in' in road or 'WB_feed' in road: ltc_bits[3] = 1.0
+        state.extend(ltc_bits)
         
         # Pad to obs_dim
         current_len = len(state)
@@ -452,7 +481,7 @@ class OxfordHydeParkEnv(gym.Env):
         }
         return action_phase_map.get(action, 0)
 
-    def _set_phase(self, target_phase):
+    def _set_phase(self, target_phase, fast=False):
         """
         Safety-first phase setter.
         Triggers yellow/all-red transitions if changing between different Green phases.
@@ -472,7 +501,8 @@ class OxfordHydeParkEnv(gym.Env):
         traci.trafficlight.setPhase(self.ts_id, yellow_phase)
         
         steps_spent = 0
-        for _ in range(self.yellow_time):
+        yellow_duration = 2 if fast else self.yellow_time
+        for _ in range(yellow_duration):
             traci.simulationStep()
             self.simulation_step += 1
             self.weather.step()
@@ -482,6 +512,43 @@ class OxfordHydeParkEnv(gym.Env):
         traci.trafficlight.setPhase(self.ts_id, target_phase)
         self.last_phase = target_phase
         return steps_spent
+
+    def _check_emergency_preemption(self):
+        """
+        Scans for approaching emergency vehicles and returns the target phase if preemption is needed.
+        """
+        for veh_id in traci.vehicle.getIDList():
+            if traci.vehicle.getTypeID(veh_id) == "emergency":
+                x, y = traci.vehicle.getPosition(veh_id)
+                # Correction: Center is (500, 500)
+                dist = np.sqrt((x - 500.0)**2 + (y - 500.0)**2)
+                
+                if dist < 40.0:
+                    # Force light to green for this direction
+                    road = traci.vehicle.getRoadID(veh_id)
+                    if 'NB_in' in road or 'NB_feed' in road: return 0  # NS Green
+                    elif 'SB_in' in road or 'SB_feed' in road: return 0 # NS Green
+                    elif 'EB_in' in road or 'EB_feed' in road: return 4 # EW Green
+                    elif 'WB_in' in road or 'WB_feed' in road: return 4 # EW Green
+        return None
+
+    def _check_transit_priority(self):
+        """
+        Scans for approaching transit vehicles and returns the target phase if priority is needed.
+        (Acts as an explicit override to the RL agent to guarantee transit priority)
+        """
+        for veh_id in traci.vehicle.getIDList():
+            if traci.vehicle.getTypeID(veh_id) == "LTC_Bus":
+                x, y = traci.vehicle.getPosition(veh_id)
+                dist = np.sqrt((x - 500.0)**2 + (y - 500.0)**2)
+                
+                if dist < 30.0: # Detect within 30m for early green/green extension
+                    road = traci.vehicle.getRoadID(veh_id)
+                    if 'NB_in' in road or 'NB_feed' in road: return 0  # NS Green
+                    elif 'SB_in' in road or 'SB_feed' in road: return 0 # NS Green
+                    elif 'EB_in' in road or 'EB_feed' in road: return 4 # EW Green
+                    elif 'WB_in' in road or 'WB_feed' in road: return 4 # EW Green
+        return None
 
     def close(self):
         if self.sumo_running:

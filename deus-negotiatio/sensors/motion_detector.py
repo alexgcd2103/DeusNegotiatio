@@ -63,14 +63,18 @@ class MotionDetector:
         total = len(visible_vehs)
         
         for v in visible_vehs:
-            # Simple heuristic if explicit class missing
-            length = v.get('length', 5.0)
-            if length < 6.0:
-                classes['car'] += 1
-            elif length < 10.0:
-                classes['truck'] += 1
-            else:
+            v_type = v.get('type', '')
+            if v_type == 'LTC_Bus':
                 classes['bus'] += 1
+            else:
+                # Fallback to length-based heuristic
+                length = v.get('length', 5.0)
+                if length < 6.0:
+                    classes['car'] += 1
+                elif length < 10.0:
+                    classes['truck'] += 1
+                else:
+                    classes['bus'] += 1
                 
         class_dist = [
             classes['car'] / total,
